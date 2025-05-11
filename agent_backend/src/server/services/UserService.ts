@@ -3,14 +3,13 @@ import { signJWT } from '@/lib/express/auth/jwt';
 import { prisma } from '@/lib/prisma/prisma';
 import { AuthResponseMessage } from '@/types/auth/AuthResponseMessage';
 import { UserData } from '@/types/auth/UserData';
-import { ResponseMessage } from '@/types/common/ResponseMessage';
 import { ValidationError } from '@/types/common/ValidationError';
 import { validatePassword, validateUsername } from '@/utils/validation';
 
 type ValidationResult = {
   email?: ValidationError[] | undefined;
   password?: ValidationError[] | undefined;
-  confirmPassword?: false | undefined;
+  passwordsAreEqual?: false | undefined;
 };
 
 /**
@@ -38,12 +37,10 @@ class UserService {
     const passwordsAreEqual = password === confirmPassword;
 
     if (emailErrors || passwordErrors || !passwordsAreEqual) {
-      const response: ValidationResult & ResponseMessage = {
+      const response: ValidationResult = {
         email: emailErrors,
         password: passwordErrors,
-        confirmPassword: passwordsAreEqual ? undefined : false,
-        message: 'Validation failed',
-        success: false,
+        passwordsAreEqual: passwordsAreEqual ? undefined : false,
       };
 
       return response;
