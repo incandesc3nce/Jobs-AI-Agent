@@ -21,7 +21,9 @@ export const verifyPassword = async (
   hashedPassword: string
 ): Promise<boolean> => {
   try {
-    const isMatch = await verify(hashedPassword, password);
+    const isMatch = await verify(hashedPassword, password, {
+      secret: Buffer.from(process.env['HASH_SECRET'] as string),
+    });
     return isMatch;
   } catch (error) {
     decorateError(error);

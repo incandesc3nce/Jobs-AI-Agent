@@ -26,6 +26,11 @@ export const authSignUpRoute = async (req: Request, res: Response) => {
       password,
     });
 
+    if (!response.success) {
+      res.status(400).json(response);
+      return;
+    }
+
     res.status(201).json(response);
   } catch (error) {
     decorateError(error);

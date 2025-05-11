@@ -7,6 +7,12 @@ export const authLoginRoute = async (req: Request, res: Response) => {
 
   try {
     const response = await userService.loginUser(username, password);
+
+    if (!response.success) {
+      res.status(400).json(response);
+      return;
+    }
+
     res.status(200).json(response);
   } catch (error) {
     decorateError(error);
