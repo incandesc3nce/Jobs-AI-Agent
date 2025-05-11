@@ -5,7 +5,7 @@ import { decorateError } from '@/utils/decorateError';
 export const signJWT = (payload: {name: string}) => {
   const secret = process.env['JWT_SECRET'] as string;
   const token = jwt.sign(payload, secret, {
-    expiresIn: '5d',
+    expiresIn: '14d',
   });
 
   return token;
