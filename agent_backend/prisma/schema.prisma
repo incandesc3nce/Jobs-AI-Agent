@@ -16,10 +16,11 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  username      String   @unique
+  username  String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Resume    Resume[]
 }
 
 model Summary {
@@ -30,6 +31,32 @@ model Summary {
   description       String
   requirements      String
   keySkills         String[]
+  hasTest           Boolean
+  isInternship      Boolean
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  resumes           Resume[]
+}
+
+model Resume {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Resume fields
+  title      String
+  skills     String[]
+  experience String
+  location   String
+  workFormat WorkFormat
+
+  summaries Summary[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+enum WorkFormat {
+  Remote
+  Hybrid
+  Onsite
 }
