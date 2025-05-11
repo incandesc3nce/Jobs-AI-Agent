@@ -1,2 +1,2 @@
-export * from './errorHandler';
-export * from './notFound';
+export * from './common/errorHandler';
+export * from './common/notFound';
