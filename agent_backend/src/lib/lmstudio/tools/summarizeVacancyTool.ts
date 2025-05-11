@@ -1,25 +1,14 @@
 import { summarySchema } from '@/types/summary/summarySchema';
 import { tool } from '@lmstudio/sdk';
 
-export const summarizeJobTool = tool({
-  name: 'summarizeJob',
-  description: 'Summarize a job description and requirements from JSON string.',
+export const summarizeVacancyTool = tool({
+  name: 'summarizeVacancy',
+  description:
+    'Summarize a job description and requirements from JSON string. Combine description and branded_description into one short description. alternate_url should be used as an url to the job post.',
   parameters: summarySchema,
-  implementation: async ({
-    title,
-    company,
-    yearsOfExperience,
-    shortDescription,
-    requirements,
-    keySkills,
-  }) => {
+  implementation: async (payload) => {
     return {
-      title,
-      company,
-      yearsOfExperience,
-      shortDescription,
-      requirements,
-      keySkills,
+      ...payload,
     };
   },
 });

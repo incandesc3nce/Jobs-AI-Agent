@@ -24,17 +24,23 @@ model User {
 }
 
 model Summary {
-  id                String   @id @default(cuid())
+  id                String     @id @default(cuid())
   title             String
+  salary            String?
+  location          String?
   company           String
+  // url to the job posting
+  url               String
+  workFormat        WorkFormat
+  workSchedule      String
   yearsOfExperience String
   description       String
   requirements      String
   keySkills         String[]
   hasTest           Boolean
   isInternship      Boolean
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
   resumes           Resume[]
 }
 
