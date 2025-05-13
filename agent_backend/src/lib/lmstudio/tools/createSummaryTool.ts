@@ -10,7 +10,6 @@ export const createSummaryInDB = tool({
     const summary = await prisma.summary.create({
       data: {
         ...payload,
-        description: payload.shortDescription,
       },
     });
 

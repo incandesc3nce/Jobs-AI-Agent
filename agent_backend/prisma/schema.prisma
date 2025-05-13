@@ -32,6 +32,7 @@ model Summary {
   // url to the job posting
   url               String
   workFormat        WorkFormat
+  workHours        String
   workSchedule      String
   yearsOfExperience String
   description       String
