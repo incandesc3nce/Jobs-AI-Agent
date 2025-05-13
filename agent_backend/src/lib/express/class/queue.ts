@@ -4,8 +4,13 @@ export class RequestQueue {
   private queue: Task[] = [];
   private isProcessing = false;
 
+  private getQueueLength() {
+    return this.queue.length;
+  }
+
   public addTask(task: Task) {
     this.queue.push(task);
+    console.log(`Task added, ${this.getQueueLength()} tasks in queue`);
     this.processQueue();
   }
 
@@ -16,7 +21,7 @@ export class RequestQueue {
 
     while (this.queue.length > 0) {
       const task = this.queue.shift();
-      console.log('Task started');
+      console.log(`Task started, ${this.getQueueLength()} tasks left in queue`);
       console.time('Task processed');
       if (task) {
         try {
