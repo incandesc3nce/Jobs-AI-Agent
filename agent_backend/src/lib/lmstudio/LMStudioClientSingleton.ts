@@ -1,3 +1,3 @@
 import { LMStudioClient } from '@lmstudio/sdk';
 
-export const client = new LMStudioClient();
+export const LMStudio = new LMStudioClient();
