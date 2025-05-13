@@ -10,7 +10,7 @@ export class RequestQueue {
 
   public addTask(task: Task) {
     this.queue.push(task);
-    console.log(`Task added, ${this.getQueueLength()} tasks in queue`);
+    console.log(`📋 Task added, ${this.getQueueLength()} tasks in queue`);
     this.processQueue();
   }
 
@@ -21,8 +21,8 @@ export class RequestQueue {
 
     while (this.queue.length > 0) {
       const task = this.queue.shift();
-      console.log(`Task started, ${this.getQueueLength()} tasks left in queue`);
-      console.time('Task processed');
+      console.log(`⏳ Task started, ${this.getQueueLength()} tasks left in queue`);
+      console.time('✅ Task processed');
       if (task) {
         try {
           await task();
@@ -30,7 +30,7 @@ export class RequestQueue {
           console.error('Error processing task:', error);
         }
       }
-      console.timeEnd('Task processed');
+      console.timeEnd('✅ Task processed');
       // Add a delay between tasks to avoid overwhelming the server
       await new Promise((resolve) => setTimeout(resolve, 10000));
     }
