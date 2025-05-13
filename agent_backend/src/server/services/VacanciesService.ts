@@ -1,5 +1,7 @@
 import { HhVacancyItem } from '@/types/vacancies/HhVacancyItem';
 import { parseHhVacancies } from '@/lib/express/vacancies/parseHhVacancies';
+import { Summary } from '../../../prisma/generated';
+import { prisma } from '@/lib/prisma/prisma';
 
 class VacanciesService {
   private static instance: VacanciesService;
@@ -13,9 +15,25 @@ class VacanciesService {
     return VacanciesService.instance;
   }
 
-  public async getHhVacancies(
-    url: string
-  ): Promise<HhVacancyItem[]> {
+  public async getSummaries(): Promise<Summary[]> {
+    const summaries = await prisma.summary.findMany();
+
+    return summaries;
+  }
+
+  public async getSummaryById(id: string | undefined): Promise<Summary | null> {
+    if (!id) {
+      return null;
+    }
+    const summary = await prisma.summary.findUnique({
+      where: {
+        id,
+      },
+    });
+    return summary;
+  }
+
+  public async getHhVacancies(url: string): Promise<HhVacancyItem[]> {
     const headers = {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',

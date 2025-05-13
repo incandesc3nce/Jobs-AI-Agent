@@ -2,12 +2,14 @@ import { vacanciesService } from '@/server/services/VacanciesService';
 import { decorateError } from '@/utils/decorateError';
 import { Request, Response } from 'express';
 
-export const getAllSummariesRoute = async (_: Request, res: Response) => {
+export const getSummaryByIdRoute = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
   try {
-    const summaries = await vacanciesService.getSummaries();
+    const summary = await vacanciesService.getSummaryById(id);
 
     res.status(200).json({
-      summaries,
+      summary,
       message: 'Successfully got summaries',
       success: true,
     });

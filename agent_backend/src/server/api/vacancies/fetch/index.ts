@@ -2,13 +2,16 @@ import { vacanciesService } from '@/server/services/VacanciesService';
 import { decorateError } from '@/utils/decorateError';
 import { Request, Response } from 'express';
 
-export const getAllSummariesRoute = async (_: Request, res: Response) => {
+export const fetchVacanciesRoute = async (req: Request, res: Response) => {
+  const { text, page, per_page } = req.query;
+
+  const url = `https://api.hh.ru/vacancies?text=${text}&page=${page}&per_page=${per_page}`;
   try {
-    const summaries = await vacanciesService.getSummaries();
+    const items = await vacanciesService.getHhVacancies(url);
 
     res.status(200).json({
-      summaries,
-      message: 'Successfully got summaries',
+      items,
+      message: 'Successfully got hh.ru vacancies',
       success: true,
     });
   } catch (error) {
