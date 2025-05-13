@@ -5,6 +5,7 @@ import { AuthResponseMessage } from '@/types/auth/AuthResponseMessage';
 import { UserData } from '@/types/auth/UserData';
 import { ValidationError } from '@/types/common/ValidationError';
 import { validatePassword, validateUsername } from '@/utils/validation';
+import { User } from '../../../prisma/generated';
 
 type ValidationResult = {
   email?: ValidationError[] | undefined;
@@ -25,6 +26,26 @@ class UserService {
       UserService.instance = new UserService();
     }
     return UserService.instance;
+  }
+
+  public async getUsers(): Promise<User[]> {
+    const users = await prisma.user.findMany();
+
+    return users;
+  }
+
+  public async getUserById(id: string | undefined): Promise<User | null> {
+    if (!id) {
+      return null;
+    }
+    
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return user;
   }
 
   public validateUser(
