@@ -15,9 +15,6 @@ type ValidationResult = {
 
 type QueriedUser = Omit<User, 'password'>;
 
-/**
- * Singleton class to manage user-related operations.
- */
 class UserService {
   private static instance: UserService;
 
