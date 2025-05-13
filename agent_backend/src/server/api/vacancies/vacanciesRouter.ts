@@ -5,6 +5,6 @@ import { getAllSummariesRoute } from './get';
 
 export const vacanciesRouter = express.Router();
 
-vacanciesRouter.get('/', authMiddleware, getAllSummariesRoute);
-vacanciesRouter.get('/:id', authMiddleware, getAllSummariesRoute);
 vacanciesRouter.get('/fetch', authMiddleware, fetchVacanciesRoute);
+vacanciesRouter.get('/get', authMiddleware, getAllSummariesRoute);
+vacanciesRouter.get('/get/:id', authMiddleware, getAllSummariesRoute);
