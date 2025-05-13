@@ -6,10 +6,10 @@ export const getUserByIdRoute = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const users = await userService.getUserById(id);
+    const user = await userService.getUserById(id);
 
     res.status(200).json({
-      users,
+      user,
       message: 'Successfully got users',
       success: true,
     });
