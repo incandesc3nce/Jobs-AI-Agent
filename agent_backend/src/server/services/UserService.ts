@@ -13,6 +13,8 @@ type ValidationResult = {
   passwordsAreEqual?: false | undefined;
 };
 
+type QueriedUser = Omit<User, 'password'>;
+
 /**
  * Singleton class to manage user-related operations.
  */
@@ -28,22 +30,33 @@ class UserService {
     return UserService.instance;
   }
 
-  public async getUsers(): Promise<User[]> {
-    const users = await prisma.user.findMany();
+  public async getUsers(): Promise<QueriedUser[]> {
+    const users = await prisma.user.findMany({
+      omit: {
+        password: true,
+      },
+    });
 
     return users;
   }
 
-  public async getUserById(id: string | undefined): Promise<User | null> {
+  public async getUserById(id: string | undefined): Promise<QueriedUser | null> {
     if (!id) {
       return null;
     }
-    
+
     const user = await prisma.user.findUnique({
       where: {
         id,
       },
+      omit: {
+        password: true,
+      },
     });
+
+    if (!user) {
+      return null;
+    }
 
     return user;
   }
