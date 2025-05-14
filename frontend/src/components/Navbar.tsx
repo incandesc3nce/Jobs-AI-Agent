@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, Briefcase } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Menu, X, Briefcase } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,14 +15,14 @@ const Navbar: React.FC = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
+        isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"
       }`}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -32,18 +33,29 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <a
+              href="#features"
+              className="text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Возможности
             </a>
-            <a href="#how-it-works" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <a
+              href="#how-it-works"
+              className="text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Как это работает
             </a>
-            <a href="#future" className="text-gray-700 hover:text-blue-600 transition-colors">
+            <a
+              href="#future"
+              className="text-gray-700 hover:text-blue-600 transition-colors"
+            >
               Планы развития
             </a>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105">
-              Попробовать бета-версию
-            </button>
+            <Link to="/login">
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105">
+                Попробовать бета-версию
+              </button>
+            </Link>
           </div>
 
           <div className="md:hidden">
@@ -51,7 +63,11 @@ const Navbar: React.FC = () => {
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-700 hover:text-blue-600 transition-colors"
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -80,9 +96,11 @@ const Navbar: React.FC = () => {
               >
                 Планы развития
               </a>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
-                Попробовать бета-версию
-              </button>
+              <Link to="/login">
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all w-full">
+                  Попробовать бета-версию
+                </button>
+              </Link>
             </div>
           </div>
         )}

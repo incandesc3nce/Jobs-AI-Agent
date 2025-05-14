@@ -1,5 +1,6 @@
 import React from "react";
 import { Search, Briefcase, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Hero: React.FC = () => {
   return (
@@ -25,10 +26,12 @@ const Hero: React.FC = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 font-medium flex items-center justify-center">
-              <Search className="mr-2 h-5 w-5" />
-              Начать поиск работы
-            </button>
+            <Link to="/login">
+              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 font-medium flex items-center justify-center">
+                <Search className="mr-2 h-5 w-5" />
+                Начать поиск работы
+              </button>
+            </Link>
             <a
               href="#features"
               className="bg-white text-blue-600 border border-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-all font-medium"
