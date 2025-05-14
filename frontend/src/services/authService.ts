@@ -1,6 +1,6 @@
 import type { AuthResponse, LoginData, RegisterData } from '../types/auth';
 
-const API_BASE_URL = '/api/auth'; // Assuming your backend is served from the same domain or proxied
+const API_BASE_URL = 'http://localhost:3000/api/auth'; // Assuming your backend is served from the same domain or proxied
 
 export const authService = {
   login: async (credentials: LoginData): Promise<AuthResponse> => {
