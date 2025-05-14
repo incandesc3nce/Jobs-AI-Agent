@@ -4,15 +4,17 @@ import { decorateError } from '@/utils/decorateError';
 import { Request, Response } from 'express';
 
 export const fetchVacanciesRoute = async (req: Request, res: Response) => {
-  const { text, page, per_page } = req.query;
+  const { text, page, per_page, scheduleSummary } = req.query;
 
   const url = `https://api.hh.ru/vacancies?text=${text}&page=${page}&per_page=${per_page}`;
   try {
     const items = await vacanciesService.getHhVacancies(url);
 
-    items.forEach((item) => {
-      agentService.summarizeVacancy(item);
-    });
+    if (scheduleSummary) {
+      items.forEach((item) => {
+        agentService.summarizeVacancy(item);
+      });
+    }
 
     res.status(200).json({
       items,
