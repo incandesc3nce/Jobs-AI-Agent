@@ -3,6 +3,13 @@ import { parseHhVacancies } from '@/lib/express/vacancies/parseHhVacancies';
 import { Summary } from '../../../prisma/generated';
 import { prisma } from '@/lib/prisma/prisma';
 
+type SummaryQuery = {
+  take: number | undefined;
+  skip: number | undefined;
+  filter: string | undefined;
+  filterType: string | undefined;
+};
+
 class VacanciesService {
   private static instance: VacanciesService;
 
@@ -15,10 +22,80 @@ class VacanciesService {
     return VacanciesService.instance;
   }
 
-  public async getSummaries(): Promise<Summary[]> {
-    const summaries = await prisma.summary.findMany();
+  // private getFilterClause(
+  //   filter: string[] | undefined,
+  //   filterType: string | undefined
+  // ): Prisma.SummaryWhereInput {
+  //   if (Array.isArray(filter)) {
+  //     if (filterType === 'all') {
+  //       return {
+  //         AND: filter.map((f) => ({
+  //           OR: [
+  //             { title: { contains: f, mode: 'insensitive' } },
+  //             { description: { contains: f, mode: 'insensitive' } },
+  //             { requirements: { contains: f, mode: 'insensitive' } },
+  //             { keySkills: { has: f } },
+  //           ],
+  //         })),
+  //       };
+  //     } else if (filterType === 'some') {
+  //       return {
+  //         OR: filter.map((f) => ({
+  //           OR: [
+  //             { title: { contains: f, mode: 'insensitive' } },
+  //             { description: { contains: f, mode: 'insensitive' } },
+  //             { requirements: { contains: f, mode: 'insensitive' } },
+  //             { keySkills: { has: f } },
+  //           ],
+  //         })),
+  //       };
+  //     }
+  //   }
 
-    return summaries;
+  //   return {};
+  // }
+
+  public async getSummaries(query: SummaryQuery): Promise<Summary[]> {
+    const { take = 10, skip = 0, filter, filterType } = query;
+    const parsedFilter = filter?.split(',').map((item) => item.trim().toLowerCase());
+
+    // const whereClause = this.getFilterClause(parsedFilter, filterType);
+
+    const summaries = await prisma.summary.findMany({
+      take,
+      skip,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (!parsedFilter || parsedFilter.length === 0) {
+      return summaries;
+    }
+
+    return summaries.filter((summary) => {
+      const title = summary.title.toLowerCase();
+      const description = summary.description.toLowerCase();
+      const requirements = summary.requirements.toLowerCase();
+      const keySkills = summary.keySkills.map((skill) => skill.toLowerCase());
+
+      if (filterType === 'all') {
+        return parsedFilter.every(
+          (filter) =>
+            title.includes(filter) ||
+            description.includes(filter) ||
+            requirements.includes(filter) ||
+            keySkills.some((skill) => skill.includes(filter))
+        );
+      } else {
+        return (
+          parsedFilter.some((filter) => title.includes(filter)) ||
+          parsedFilter.some((filter) => description.includes(filter)) ||
+          parsedFilter.some((filter) => requirements.includes(filter)) ||
+          parsedFilter.some((filter) => keySkills.includes(filter))
+        );
+      }
+    });
   }
 
   public async getSummaryById(id: string | undefined): Promise<Summary | null> {
