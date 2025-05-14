@@ -39,7 +39,7 @@ const HowItWorks: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <div className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 z-20">
+                <div className="hidden md:flex absolute left-full top-1/2 -translate-y-1/2 z-20">
                   <ArrowRight className="h-10 w-10 text-blue-400" />
                 </div>
               </div>
@@ -62,7 +62,7 @@ const HowItWorks: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <div className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 z-20">
+                <div className="hidden md:flex absolute left-full top-1/2 -translate-y-1/2 z-20">
                   <ArrowRight className="h-10 w-10 text-blue-400" />
                 </div>
               </div>
