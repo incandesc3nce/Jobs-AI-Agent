@@ -1,5 +1,5 @@
-import React from 'react';
-import { Search, Briefcase, TrendingUp } from 'lucide-react';
+import React from "react";
+import { Search, Briefcase, TrendingUp } from "lucide-react";
 
 const Hero: React.FC = () => {
   return (
@@ -12,33 +12,40 @@ const Hero: React.FC = () => {
               <TrendingUp className="h-4 w-4" />
             </div>
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Найдите <span className="text-blue-600">идеальную работу</span> с помощью ИИ
+            Найдите <span className="text-blue-600">идеальную работу</span> с
+            помощью ИИ
           </h1>
-          
+
           <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            Наш ИИ-агент анализирует ваши навыки, опыт и карьерные цели, чтобы найти 
-            и рекомендовать наиболее подходящие вакансии, созданные специально для вас.
+            Наш ИИ-агент анализирует ваши навыки, опыт и карьерные цели, чтобы
+            найти и рекомендовать наиболее подходящие вакансии, созданные
+            специально для вас.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
             <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 font-medium flex items-center justify-center">
               <Search className="mr-2 h-5 w-5" />
               Начать поиск работы
             </button>
-            <button className="bg-white text-blue-600 border border-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-all font-medium">
+            <a
+              href="#features"
+              className="bg-white text-blue-600 border border-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-all font-medium"
+            >
               Узнать, как это работает
-            </button>
+            </a>
           </div>
         </div>
-        
+
         <div className="w-full max-w-4xl mx-auto mt-8 relative">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden relative z-10 transform transition-all hover:shadow-2xl">
             <div className="p-6 bg-gray-50 border-b">
               <div className="flex items-center">
                 <Briefcase className="h-5 w-5 text-blue-600 mr-2" />
-                <span className="font-medium text-gray-800">CareerAI Ассистент</span>
+                <span className="font-medium text-gray-800">
+                  CareerAI Ассистент
+                </span>
               </div>
             </div>
             <div className="p-6">
@@ -48,15 +55,18 @@ const Hero: React.FC = () => {
                 </div>
                 <div className="bg-gray-100 rounded-2xl px-5 py-4 max-w-[80%]">
                   <p className="text-gray-800">
-                    Привет! Я ваш CareerAI ассистент. Я помогу вам найти идеальную работу на основе ваших навыков и карьерных целей. Хотите загрузить резюме или рассказать мне о своем опыте?
+                    Привет! Я ваш CareerAI ассистент. Я помогу вам найти
+                    идеальную работу на основе ваших навыков и карьерных целей.
+                    Хотите загрузить резюме или рассказать мне о своем опыте?
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start justify-end">
                 <div className="bg-blue-600 text-white rounded-2xl px-5 py-4 max-w-[80%]">
                   <p>
-                    Я full-stack разработчик с 3-летним опытом. Ищу удаленную работу, где смогу развивать навыки руководства.
+                    Я full-stack разработчик с 3-летним опытом. Ищу удаленную
+                    работу, где смогу развивать навыки руководства.
                   </p>
                 </div>
                 <div className="bg-gray-100 rounded-full p-2 ml-4">
@@ -65,12 +75,12 @@ const Hero: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="absolute -bottom-6 -right-6 h-32 w-32 bg-blue-200 rounded-full opacity-50 z-0"></div>
           <div className="absolute -top-6 -left-6 h-24 w-24 bg-purple-200 rounded-full opacity-50 z-0"></div>
         </div>
       </div>
-      
+
       <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
     </div>
   );
