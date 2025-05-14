@@ -16,7 +16,7 @@ const Newsletter: React.FC = () => {
   return (
     <section className="py-16 bg-blue-600">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 p-8 md:p-12 bg-blue-600 text-white">
               <h3 className="text-2xl font-bold mb-4">Будьте в курсе</h3>
