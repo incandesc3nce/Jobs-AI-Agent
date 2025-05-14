@@ -8,7 +8,7 @@ const Hero: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto">
           <div className="mb-6 inline-block">
             <div className="flex items-center justify-center bg-blue-100 text-blue-600 rounded-full px-4 py-1 text-sm font-medium">
-              <span className="mr-2">Хакатон проект</span>
+              <span className="mr-2">Hackathon Barnaul #10</span>
               <TrendingUp className="h-4 w-4" />
             </div>
           </div>
