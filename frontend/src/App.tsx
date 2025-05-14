@@ -1,31 +1,47 @@
-import React, { useEffect } from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Features from './components/Features';
-import HowItWorks from './components/HowItWorks';
-import Testimonials from './components/Testimonials';
-import FuturePlans from './components/FuturePlans';
-import Newsletter from './components/Newsletter';
-import Footer from './components/Footer';
+import React from "react";
+import { Routes, Route, Outlet } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage"; // We will create this
+// import ProfilePage from './pages/ProfilePage'; // Assuming you have or will create a profile page
 
-function App() {
-  useEffect(() => {
-    // Update page title
-    document.title = 'CareerAI - Find Your Perfect Job with AI';
-  }, []);
+// Layout for main application pages with Navbar and Footer
+const MainLayout: React.FC = () => (
+  <>
+    <Navbar />
+    <main>
+      <Outlet /> {/* Child routes will render here */}
+    </main>
+    <Footer />
+  </>
+);
 
+// Layout for authentication pages (Login, Register)
+const AuthLayout: React.FC = () => (
+  <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 py-8">
+    <Outlet /> {/* Auth form (Login or Register page) will render here */}
+  </div>
+);
+
+const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      <Hero />
-      <Features />
-      <HowItWorks />
-      <Testimonials />
-      <FuturePlans />
-      <Newsletter />
-      <Footer />
-    </div>
+    <Routes>
+      {/* Routes with Navbar and Footer */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<HomePage />} />
+        {/* Example: <Route path="/profile" element={<ProfilePage />} /> */}
+        {/* Add other main application routes here */}
+      </Route>
+
+      {/* Auth routes without Navbar/Footer, using AuthLayout */}
+      <Route element={<AuthLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
+    </Routes>
   );
-}
+};
 
 export default App;
