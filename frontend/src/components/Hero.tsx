@@ -44,15 +44,12 @@ const Hero: React.FC = () => {
         <div className="w-full max-w-4xl mx-auto mt-8 relative">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden relative z-10 transform transition-all hover:shadow-2xl">
             <div className="p-6 bg-gray-50 border-b">
-              <Link
-                to="/"
-                className="flex items-center group text-decoration-none"
-              >
-                <Briefcase className="h-5 w-5 text-blue-600 mr-2 transition-colors group-hover:text-blue-700" />
-                <span className="font-medium text-gray-800 transition-colors group-hover:text-blue-700">
+              <div className="flex items-center">
+                <Briefcase className="h-5 w-5 text-blue-600 mr-2" />
+                <span className="font-medium text-gray-800">
                   CareerAI Ассистент
                 </span>
-              </Link>
+              </div>
             </div>
             <div className="p-6">
               <div className="flex items-start mb-6">

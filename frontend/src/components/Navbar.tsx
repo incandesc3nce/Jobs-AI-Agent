@@ -27,10 +27,14 @@ const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
+          <Link
+            to="/"
+            className="flex items-center no-underline"
+            onClick={() => window.scrollTo(0, 0)} // Добавляем обработчик для прокрутки вверх
+          >
             <Briefcase className="h-8 w-8 text-blue-600 mr-2" />
             <span className="text-xl font-bold text-gray-900">CareerAI</span>
-          </div>
+          </Link>
 
           <div className="hidden md:flex items-center space-x-8">
             <a
