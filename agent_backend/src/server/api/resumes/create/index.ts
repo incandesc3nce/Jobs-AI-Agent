@@ -22,7 +22,7 @@ export const createResumeRoute = async (req: Request, res: Response) => {
     const resume = await resumeService.createResume({
       username,
       title,
-      skills,
+      skills: skills.split(',').map((skill: string) => skill.trim()),
       experience,
       location,
       workFormat,

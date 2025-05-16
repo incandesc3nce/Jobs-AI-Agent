@@ -78,11 +78,11 @@ class ResumeService {
   public async updateResume(resume: {
     username: string;
     resumeId: string;
-    title: string;
-    skills: string[];
-    experience: string;
-    location: string;
-    workFormat: WorkFormat;
+    title?: string;
+    skills: string[] | [];
+    experience?: string;
+    location?: string;
+    workFormat?: WorkFormat;
   }) {
     const {
       username,
@@ -106,18 +106,21 @@ class ResumeService {
       };
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = {};
+
+    if (title !== undefined) data.title = title;
+    if (skills !== undefined) data.skills = skills;
+    if (experience !== undefined) data.experience = experience;
+    if (location !== undefined) data.location = location;
+    if (workFormat !== undefined) data.workFormat = workFormat;
+
     const updatedResume = await prisma.resume.update({
       where: {
         id: resumeId,
         userId: user.id,
       },
-      data: {
-        title,
-        skills,
-        experience,
-        location,
-        workFormat,
-      },
+      data,
     });
 
     return {
