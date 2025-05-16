@@ -15,7 +15,7 @@ const ProfilePage: React.FC = () => {
       setUsername(storedUsername);
     } else {
       // Redirect to login if no token is found
-      navigate("/login");
+      navigate("/job-search");
     }
   }, [navigate]);
 

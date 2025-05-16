@@ -51,7 +51,7 @@ model Resume {
   user   User   @relation(fields: [userId], references: [id])
 
   // Resume fields
-  title      String
+  title      String  //Должность
   skills     String[]
   experience String
   location   String

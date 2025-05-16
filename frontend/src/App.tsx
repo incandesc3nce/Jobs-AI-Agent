@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage"; // We will create this
+import JobSearchPage from "./pages/JobSearchPage"; // Added import
 // import ProfilePage from './pages/ProfilePage'; // Assuming you have or will create a profile page
 
 // Layout for main application pages with Navbar and Footer
@@ -34,6 +35,9 @@ const App: React.FC = () => {
         {/* Example: <Route path="/profile" element={<ProfilePage />} /> */}
         {/* Add other main application routes here */}
       </Route>
+
+      {/* Job Search Route without Navbar/Footer from MainLayout */}
+      <Route path="/job-search" element={<JobSearchPage />} />
 
       {/* Auth routes without Navbar/Footer, using AuthLayout */}
       <Route element={<AuthLayout />}>

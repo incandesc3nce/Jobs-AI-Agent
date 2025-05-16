@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
       if (data.success && data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("username", data.username || username);
-        navigate("/profile"); // Navigate to a protected route, e.g., user profile or dashboard
+        navigate("/job-search"); // Navigate to a protected route, e.g., user profile or dashboard
       } else {
         setError(
           data.message || "Ошибка входа. Пожалуйста, проверьте ваши данные."
