@@ -84,7 +84,6 @@ class VacanciesService {
       if (taken >= take) {
         return false;
       }
-      taken++;
 
       const title = summary.title.toLowerCase();
       const description = summary.description.toLowerCase();
@@ -92,20 +91,30 @@ class VacanciesService {
       const keySkills = summary.keySkills.map((skill) => skill.toLowerCase());
 
       if (filterType === 'all') {
-        return parsedFilter.every(
+        const isAll = parsedFilter.every(
           (filter) =>
             title.includes(filter) ||
             description.includes(filter) ||
             requirements.includes(filter) ||
             keySkills.some((skill) => skill.includes(filter))
         );
+        if (isAll) {
+          taken++;
+          return true;
+        }
+        return false;
       } else {
-        return (
+        const isSome =
           parsedFilter.some((filter) => title.includes(filter)) ||
           parsedFilter.some((filter) => description.includes(filter)) ||
           parsedFilter.some((filter) => requirements.includes(filter)) ||
-          parsedFilter.some((filter) => keySkills.includes(filter))
-        );
+          parsedFilter.some((filter) => keySkills.includes(filter));
+
+        if (isSome) {
+          taken++;
+          return true;
+        }
+        return false;
       }
     });
   }
