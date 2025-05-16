@@ -9,3 +9,5 @@ export const usersRouter = Router();
 usersRouter.get('/', authMiddleware, getAllUsersRoute);
 // User by ID
 usersRouter.get('/:id', authMiddleware, getUserByIdRoute);
+// Get user resumes
+// usersRouter.get('/resumes', authMiddleware, getUserByIdRoute);
