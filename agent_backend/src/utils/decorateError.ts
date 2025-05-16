@@ -2,7 +2,7 @@ import { ResponseMessage } from '@/types/common/ResponseMessage';
 
 export function decorateError(error: unknown): ResponseMessage {
   console.error('Error:', error);
-  
+
   if (error instanceof Error) {
     return {
       message: error.message,
@@ -18,7 +18,7 @@ export function decorateError(error: unknown): ResponseMessage {
   }
 
   return {
-    message: 'Something went wrong',
+    message: error as string,
     success: false,
   };
 }
