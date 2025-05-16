@@ -1,13 +1,13 @@
 import type { AuthResponse, LoginData, RegisterData } from '../types/auth';
 
-const API_BASE_URL = 'http://localhost:3000/api/auth'; // Assuming your backend is served from the same domain or proxied
+const API_BASE_URL = 'https://jobs-agent-backend.loca.lt/api/auth'; // Assuming your backend is served from the same domain or proxied
 
 export const authService = {
   login: async (credentials: LoginData): Promise<AuthResponse> => {
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', 'User-Agent': 'PostmanRuntime/7.43.4', 'bypass-tunnel-reminder': 'true'
       },
       body: JSON.stringify(credentials),
     });
@@ -22,7 +22,7 @@ export const authService = {
     const response = await fetch(`${API_BASE_URL}/sign-up`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', 'User-Agent': 'PostmanRuntime/7.43.4', 'bypass-tunnel-reminder': 'true'
       },
       body: JSON.stringify(userData),
     });
