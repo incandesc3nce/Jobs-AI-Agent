@@ -10,4 +10,4 @@ usersRouter.get('/', authMiddleware, getAllUsersRoute);
 // User by ID
 usersRouter.get('/:id', authMiddleware, getUserByIdRoute);
 // Get user resumes
-// usersRouter.get('user/resumes', authMiddleware, getUserByIdRoute);
+// usersRouter.get('/resumes', authMiddleware, getUserByIdRoute);
