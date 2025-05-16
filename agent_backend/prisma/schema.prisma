@@ -32,7 +32,7 @@ model Summary {
   // url to the job posting
   url               String
   workFormat        WorkFormat
-  workHours        String
+  workHours         String
   workSchedule      String
   yearsOfExperience String
   description       String
@@ -42,7 +42,7 @@ model Summary {
   isInternship      Boolean
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
-  resumes           Resume[]
+  matches             Match[]
 }
 
 model Resume {
@@ -57,9 +57,23 @@ model Resume {
   location   String
   workFormat WorkFormat
 
-  summaries Summary[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  matches     Match[]
+}
+
+model Match {
+  id         String  @id @default(cuid())
+  summaryId  String
+  resumeId   String
+  summary    Summary @relation(fields: [summaryId], references: [id])
+  resume     Resume  @relation(fields: [resumeId], references: [id])
+  matchScore Float
+  matchReason String
+  isHidden  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum WorkFormat {
