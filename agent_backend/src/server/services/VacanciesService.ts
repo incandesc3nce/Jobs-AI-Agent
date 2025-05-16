@@ -57,13 +57,13 @@ class VacanciesService {
 
   public async getSummaries(query: SummaryQuery): Promise<Summary[]> {
     const { take = 10, skip = 0, filter, filterType } = query;
-    const parsedFilter = filter?.split(',').map((item) => item.trim().toLowerCase());
+    const parsedFilter = filter
+      ?.split(',')
+      .map((item) => item.trim().toLowerCase());
 
     // const whereClause = this.getFilterClause(parsedFilter, filterType);
 
     const summaries = await prisma.summary.findMany({
-      take,
-      skip,
       orderBy: {
         createdAt: 'desc',
       },
@@ -73,7 +73,19 @@ class VacanciesService {
       return summaries;
     }
 
+    // kostylnoe
+    let skipped = 0;
+    let taken = 0;
     return summaries.filter((summary) => {
+      if (skipped <= skip) {
+        skipped++;
+        return false;
+      }
+      if (taken >= take) {
+        taken++;
+        return false;
+      }
+      
       const title = summary.title.toLowerCase();
       const description = summary.description.toLowerCase();
       const requirements = summary.requirements.toLowerCase();
