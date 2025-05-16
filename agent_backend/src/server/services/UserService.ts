@@ -60,10 +60,12 @@ class UserService {
     return user;
   }
 
-  public async getUserResumes(id: string): Promise<Resume[]> {
+  public async getUserResumes(username: string): Promise<Resume[]> {
     const resumes = await prisma.resume.findMany({
       where: {
-        userId: id,
+        user: {
+          username,
+        },
       },
     });
 
