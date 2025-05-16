@@ -1,3 +1,7 @@
+fastapi
+uvicorn
+python-dotenv
+requests
 langchain
 langchain-ollama
 langchain-chroma

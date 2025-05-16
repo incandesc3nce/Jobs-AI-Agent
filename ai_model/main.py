@@ -18,16 +18,18 @@ prompt = ChatPromptTemplate.from_template(template)
 
 chain = prompt | model
 
-
-while True:
-    print("\n\n--------------------------------------------------------------")
-    # Get user input for job descriptions and job seekers
-    question = input("Enter job descriptions (comma-separated, q to quit): ")
-    print("\n\n--------------------------------------------------------------")
-    if question.lower() == 'q':
-        break
-    
+def generate_answer(question: str) -> str:
     job_reviews = retriever.invoke(question)
-
     result = chain.invoke({'job_reviews': job_reviews, 'question': question})
-    print(result)
+    return result
+
+# Для ручного теста из консоли
+if __name__ == "__main__":
+    while True:
+        print("\n\n--------------------------------------------------------------")
+        question = input("Enter job descriptions (comma-separated, q to quit): ")
+        print("\n\n--------------------------------------------------------------")
+        if question.lower() == 'q':
+            break
+        answer = generate_answer(question)
+        print(answer)
