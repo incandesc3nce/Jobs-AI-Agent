@@ -82,10 +82,10 @@ class VacanciesService {
         return false;
       }
       if (taken >= take) {
-        taken++;
         return false;
       }
-      
+      taken++;
+
       const title = summary.title.toLowerCase();
       const description = summary.description.toLowerCase();
       const requirements = summary.requirements.toLowerCase();
