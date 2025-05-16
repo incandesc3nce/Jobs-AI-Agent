@@ -139,6 +139,7 @@ const JobSearchPage: React.FC = () => {
               id="title"
               value={resumeForm.title}
               onChange={handleResumeInputChange}
+              placeholder="Ваша должность"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               required
             />
@@ -148,7 +149,7 @@ const JobSearchPage: React.FC = () => {
               htmlFor="skills"
               className="block text-sm font-medium text-gray-700"
             >
-              Скиллы (через запятую)
+              Скиллы
             </label>
             <input
               type="text"
@@ -156,6 +157,7 @@ const JobSearchPage: React.FC = () => {
               id="skills"
               value={resumeForm.skills}
               onChange={handleResumeInputChange}
+              placeholder="Через запятую"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               required
             />
@@ -167,12 +169,13 @@ const JobSearchPage: React.FC = () => {
             >
               Опыт работы
             </label>
-            <textarea
+            <input
               name="experience"
               id="experience"
               value={resumeForm.experience}
               onChange={handleResumeInputChange}
-              rows={3}
+              placeholder="Количество лет"
+              type="number"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               required
             />
@@ -190,6 +193,7 @@ const JobSearchPage: React.FC = () => {
               id="location"
               value={resumeForm.location}
               onChange={handleResumeInputChange}
+              placeholder="Город"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               required
             />
