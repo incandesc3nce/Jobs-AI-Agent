@@ -23,7 +23,7 @@ export const createResumeRoute = async (req: Request, res: Response) => {
       username,
       title,
       skills: skills.split(',').map((skill: string) => skill.trim()),
-      experience,
+      experience: String(experience),
       location,
       workFormat,
     });
