@@ -1,6 +1,6 @@
 import { ResumeFormState } from "../pages/JobSearchPage"; // Assuming types are here
 
-const API_BASE_URL = "https://jobs-agent-backend.loca.lt/api"; // Adjust if your backend URL is different
+const API_BASE_URL = "https://jobs-agent-backend-2.loca.lt/api"; // Adjust if your backend URL is different
 
 // Define Resume interface based on actual backend response
 export interface Resume {
