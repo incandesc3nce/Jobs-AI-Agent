@@ -1,0 +1,74 @@
+{
+    "resumes": [
+        {
+            "id": "cmamkbfan0001uvqgx0rkj7ja",
+            "userId": "cmajr4y9j0000uvi8eonm3fh7",
+            "title": "Frontend Разработчик",
+            "skills": [
+                "JavaScript",
+                "React",
+                "CSS",
+                "HTML",
+                "TypeScript",
+                "Node.js"
+            ],
+            "experience": "3 года",
+            "location": "Москва",
+            "workFormat": "Remote",
+            "createdAt": "2025-05-13T13:43:34.702Z",
+            "updatedAt": "2025-05-13T13:43:34.702Z"
+        },
+        {
+            "id": "cmamkbfz10005uvqgkl8quaqd",
+            "userId": "cmajscv3l0000uvo4c5or1q35",
+            "title": "Fullstack Разработчик",
+            "skills": [
+                "JavaScript",
+                "React",
+                "Node.js",
+                "Express",
+                "MongoDB"
+            ],
+            "experience": "5 года",
+            "location": "Москва",
+            "workFormat": "Onsite",
+            "createdAt": "2025-05-13T13:43:34.702Z",
+            "updatedAt": "2025-05-13T13:43:34.702Z"
+        },
+        {
+            "id": "cmamkbfz80007uvqgtq8gftb8",
+            "userId": "cmajrhuyq0000uvtwosxuzw2n",
+            "title": "Backend Разработчик",
+            "skills": [
+                "JavaScript",
+                "Node.js",
+                "Express",
+                "NestJS",
+                "MongoDB",
+                "PostgreSQL"
+            ],
+            "experience": "4 года",
+            "location": "Санкт-Петербург",
+            "workFormat": "Hybrid",
+            "createdAt": "2025-05-13T13:43:34.702Z",
+            "updatedAt": "2025-05-13T13:43:34.702Z"
+        },
+        {
+            "id": "cmarmh0dg0001uvh01f48on7y",
+            "userId": "cmaoaqw1h0000ty3sneulc49s",
+            "title": "Project Manager",
+            "skills": [
+                "Scrum",
+                "Agile",
+                "English"
+            ],
+            "experience": "5",
+            "location": "Barnaul",
+            "workFormat": "Onsite",
+            "createdAt": "2025-05-17T02:42:45.395Z",
+            "updatedAt": "2025-05-17T02:42:45.395Z"
+        }
+    ],
+    "message": "Successfully got resumes",
+    "success": true
+}
