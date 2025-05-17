@@ -23,6 +23,18 @@ def generate_answer(question: str) -> str:
     result = chain.invoke({'job_reviews': job_reviews, 'question': question})
     return result
 
+'''def rank_vacancies(question: str, vacancies: list) -> list:
+    """
+    Оценивает каждую вакансию по релевантности вопросу с помощью LLM.
+    Возвращает список вакансий с оценкой.
+    """
+    ranked = []
+    for vacancy in vacancies:
+        prompt_text = f"Вопрос: {question}\nВакансия: {vacancy}\nОцени релевантность вакансии по 10-балльной шкале (0 - не подходит, 10 - идеально):"
+        score = model.invoke(prompt_text)
+        ranked.append({"vacancy": vacancy, "score": score})
+    return ranked
+'''
 # Для ручного теста из консоли
 if __name__ == "__main__":
     while True:

@@ -1,8 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException, Header, Request
+from fastapi import FastAPI, Depends, HTTPException, Header, Request, Body
+from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
 from main import generate_answer
-from resume import generate_answer_resume
+from vector import retriever
 
 load_dotenv()
 
@@ -23,8 +24,19 @@ def generate(prompt: str):
 def ping():
     return {"status": "ok"}
 
+class RankVacanciesRequest(BaseModel):
+    question: str
+    k: int = 10  # Сколько вакансий искать (по умолчанию 10)
 
-
+'''@app.post("/rank_vacancies")
+def rank_vacancies_endpoint(data: RankVacanciesRequest):
+    # Получаем k наиболее релевантных вакансий из эмбеддингов chroma
+    docs = retriever.invoke(data.question)
+    # docs - это список документов, преобразуем их в текст вакансии
+    vacancies = [doc.page_content for doc in docs][:data.k]
+    result = rank_vacancies(data.question, vacancies)
+    return result
+'''
 @app.post("/resume")
 async def resume_endpoint(request: Request, res_prompt: str):
         # Получаем тело запроса как байты и преобразуем в строку
@@ -32,9 +44,10 @@ async def resume_endpoint(request: Request, res_prompt: str):
     body_text = body_bytes.decode("utf-8")
 
     # Объединяем answer из параметров и тело запроса
-    resume = res_prompt + body_text + '/no_think'
+    resume = res_prompt + body_text
 
     # Вызываем вашу функцию обработки
-    result = generate_answer_resume(resume)
+    result = generate_answer(resume + "/no_think")
 
     return result
+
