@@ -38,7 +38,7 @@ const RegisterPage: React.FC = () => {
       if (data.success && data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("username", data.username || username);
-        navigate("/job-search"); // Changed from /profile to /job-search
+        navigate("/job-search"); 
       } else {
         let generalMessage = data.message || "Ошибка регистрации.";
         if (data.errors) {
