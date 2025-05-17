@@ -1,6 +1,6 @@
 import type { AuthResponse, LoginData, RegisterData } from '../types/auth';
 
-const API_BASE_URL = 'https://jobs-agent-backend.loca.lt/api/auth'; // Assuming your backend is served from the same domain or proxied
+const API_BASE_URL = 'https://jobs-agent-backend-2.loca.lt/api/auth'; // Assuming your backend is served from the same domain or proxied
 
 export const authService = {
   login: async (credentials: LoginData): Promise<AuthResponse> => {

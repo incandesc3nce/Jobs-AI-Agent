@@ -46,9 +46,9 @@ const JobSearchPage: React.FC = () => {
 
   // todo: заменить на /api/matches/get
   const { data, error, loading, refetch } = useFetch<any>(
-    'https://jobs-agent-backend.loca.lt/api/vacancies/get'
+    'https://jobs-agent-backend-2.loca.lt/api/vacancies/get'
   );
-  const [filteredVacancies, setFilteredVacancies] = useState<Vacancy[]>(data?.summaries || []);
+  const [filteredVacancies, setFilteredVacancies] = useState<Vacancy[]>([]); // Initialize as empty
 
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,6 +72,19 @@ const JobSearchPage: React.FC = () => {
       fetchUserResumes();
     }
   }, [jwtToken]);
+
+  useEffect(() => {
+    if (data) {
+      // Assuming data might be an array directly or an object with a 'summaries' property
+      if (Array.isArray(data)) {
+        setFilteredVacancies(data);
+      } else if (data.summaries && Array.isArray(data.summaries)) {
+        setFilteredVacancies(data.summaries);
+      } else {
+        setFilteredVacancies([]); // Handle unexpected data structure
+      }
+    }
+  }, [data]);
 
   const fetchUserResumes = async () => {
     setIsLoadingResumes(true);
@@ -215,11 +228,22 @@ const JobSearchPage: React.FC = () => {
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const lowerSearchTerm = searchTerm.toLowerCase();
-    const vacancies = await apiFetch(
-      `https://jobs-agent-backend.loca.lt/api/vacancies/get?filter=${lowerSearchTerm}&filterType=all&take=10&skip=0`
-    );
-    setFilteredVacancies(vacancies.summaries);
-    setCurrentPage(1);
+    // Ensure this URL and response structure matches your backend for search
+    const searchApiUrl = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${lowerSearchTerm}&filterType=all&take=1000&skip=0`; // Fetch all for client-side filtering or adjust if backend paginates search
+    try {
+      const result = await apiFetch<any>(searchApiUrl);
+      if (result && result.summaries && Array.isArray(result.summaries)) {
+        setFilteredVacancies(result.summaries);
+      } else if (result && Array.isArray(result)) { // If search returns an array directly
+        setFilteredVacancies(result);
+      } else {
+        setFilteredVacancies([]);
+      }
+      setCurrentPage(1); // Reset to first page after search
+    } catch (searchError) {
+      console.error('Failed to fetch search results:', searchError);
+      setFilteredVacancies([]); // Clear vacancies on search error
+    }
   };
 
   const indexOfLastVacancy = currentPage * vacanciesPerPage;
@@ -229,7 +253,7 @@ const JobSearchPage: React.FC = () => {
     indexOfLastVacancy
   );
   const totalPages = Math.ceil(
-    filteredVacancies?.length || 0 / vacanciesPerPage
+    (filteredVacancies?.length || 0) / vacanciesPerPage
   );
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
@@ -432,7 +456,7 @@ const JobSearchPage: React.FC = () => {
         </div>
 
         {/* Vacancy Cards */}
-        {currentVacancies?.length || 0 > 0 ? (
+        {(currentVacancies?.length || 0) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
             {currentVacancies?.map((vacancy) => (
               <VacancyCard key={vacancy.id} vacancy={vacancy} />
