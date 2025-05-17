@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { authMiddleware } from '@/server/middlewares/auth/auth';
 import { matchPlanBRoute } from './planb';
+import { matchGenerateRoute } from './generate';
+import { matchResumeRoute } from './resume';
 
 export const matchRouter = Router();
 
-matchRouter.use('/plan-b', authMiddleware, matchPlanBRoute);
+// PLAN B, EMERGENCY ONLY
+// matches the resume with all summaries as a prompt, but works slowly (1-2 minutes per job)
+matchRouter.get('/plan-b', authMiddleware, matchPlanBRoute);
 
+matchRouter.post('/generate', authMiddleware, matchGenerateRoute);
+matchRouter.post('/resume', authMiddleware, matchResumeRoute);
