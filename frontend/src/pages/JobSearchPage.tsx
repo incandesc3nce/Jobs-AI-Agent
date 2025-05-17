@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Briefcase, Edit3, PlusCircle, Trash2 } from "lucide-react";
 import VacancyCard from "../components/VacancyCard";
 import { resumeService, Resume } from "../services/resumeService";
-import { useFetch } from "../hooks/useFetch";
 import { apiFetch } from "../utils/apiFetch";
 
 export interface ResumeFormState {
@@ -26,7 +25,7 @@ interface Vacancy {
   isInternship: boolean;
   hasTestTask: boolean;
   description: string;
-  url?: string; // Add the optional url field
+  url?: string;
 }
 
 const JobSearchPage: React.FC = () => {
@@ -45,11 +44,9 @@ const JobSearchPage: React.FC = () => {
   const [isLoadingResumes, setIsLoadingResumes] = useState(true);
   const [resumeError, setResumeError] = useState<string | null>(null);
 
-  //
-  const { data, error, loading, refetch } = useFetch<any>(
-    "https://jobs-agent-backend-2.loca.lt/api/vacancies/get"
-  );
-  const [filteredVacancies, setFilteredVacancies] = useState<Vacancy[]>([]); // Initialize as empty
+  const [filteredVacancies, setFilteredVacancies] = useState<Vacancy[]>([]);
+  const [isLoadingVacancies, setIsLoadingVacancies] = useState(true);
+  const [vacancyError, setVacancyError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,22 +69,57 @@ const JobSearchPage: React.FC = () => {
     if (jwtToken) {
       fetchUserResumes();
     }
-  }, [jwtToken]);
+  }, [jwtToken, navigate]);
 
-  useEffect(() => {
-    if (data) {
-      // Assuming data might be an array directly or an object with a 'summaries' property
-      if (Array.isArray(data)) {
-        setFilteredVacancies(data);
-      } else if (data.summaries && Array.isArray(data.summaries)) {
-        setFilteredVacancies(data.summaries);
-      } else {
-        setFilteredVacancies([]); // Handle unexpected data structure
+  const fetchVacancies = useCallback(async (resume?: Resume) => {
+    setIsLoadingVacancies(true);
+    setVacancyError(null);
+    let url =
+      "https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filterType=all&take=1000&skip=0";
+
+    if (resume) {
+      const skillsString = Array.isArray(resume.skills)
+        ? resume.skills.join(",")
+        : "";
+      let combinedFilter = "";
+
+      if (resume.title) {
+        combinedFilter += resume.title;
+      }
+      if (skillsString) {
+        if (combinedFilter && resume.title) combinedFilter += ",";
+        combinedFilter += skillsString;
+      }
+
+      const filterValue = combinedFilter.replace(/\s+/g, "");
+
+      if (filterValue) {
+        url = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${encodeURIComponent(
+          filterValue
+        )}&filterType=all&take=1000&skip=0`;
       }
     }
-  }, [data]);
 
-  const fetchUserResumes = async () => {
+    try {
+      const result = await apiFetch<any>(url);
+      if (result && result.summaries && Array.isArray(result.summaries)) {
+        setFilteredVacancies(result.summaries);
+      } else if (result && Array.isArray(result)) {
+        setFilteredVacancies(result);
+      } else {
+        setFilteredVacancies([]);
+      }
+      setCurrentPage(1);
+    } catch (err: any) {
+      console.error("Failed to fetch vacancies:", err);
+      setVacancyError(err.message || "Failed to load vacancies.");
+      setFilteredVacancies([]);
+    } finally {
+      setIsLoadingVacancies(false);
+    }
+  }, []);
+
+  const fetchUserResumes = useCallback(async () => {
     setIsLoadingResumes(true);
     setResumeError(null);
     try {
@@ -95,25 +127,12 @@ const JobSearchPage: React.FC = () => {
       setUserResumes(resumes);
 
       if (resumes.length > 0) {
-        const currentSelectedResumeExists = selectedResumeId
-          ? resumes.some((r) => r.id === selectedResumeId)
-          : false;
-
-        if (currentSelectedResumeExists) {
-          const resumeToReSelect = resumes.find(
-            (r) => r.id === selectedResumeId
-          );
-          if (resumeToReSelect) {
-            handleSelectResume(resumeToReSelect.id);
-          } else {
-            handleSelectResume(resumes[0].id);
-          }
-        } else {
-          handleSelectResume(resumes[0].id);
-        }
+        const resumeToSelect = resumes[resumes.length - 1];
+        await handleSelectResume(resumeToSelect.id, resumeToSelect);
       } else {
         setResumeForm(initialResumeFormState);
         setSelectedResumeId(null);
+        await fetchVacancies();
       }
     } catch (error: any) {
       console.error("Failed to load resumes:", error);
@@ -125,22 +144,21 @@ const JobSearchPage: React.FC = () => {
       ) {
         setResumeError("Authentication failed. Please log in again.");
         setTimeout(() => navigate("/login"), 1500);
-      } else if (
-        errorMessage.includes("not found") &&
-        userResumes.length === 0
-      ) {
+      } else if (errorMessage.includes("not found")) {
         setUserResumes([]);
         setResumeForm(initialResumeFormState);
         setSelectedResumeId(null);
+        await fetchVacancies();
       } else {
         setResumeError(
           error.message || "Failed to load resumes. Please try again."
         );
+        await fetchVacancies();
       }
     } finally {
       setIsLoadingResumes(false);
     }
-  };
+  }, [navigate, fetchVacancies]);
 
   const handleResumeInputChange = (
     e: React.ChangeEvent<
@@ -182,39 +200,41 @@ const JobSearchPage: React.FC = () => {
     }
   };
 
-  const handleSelectResume = (resumeId: string) => {
-    const resumeToEdit = userResumes.find((r) => r.id === resumeId);
-    if (resumeToEdit) {
-      setResumeForm({
-        title: resumeToEdit.title,
-        skills: Array.isArray(resumeToEdit.skills)
-          ? resumeToEdit.skills.join(", ")
-          : "",
-        experience: String(resumeToEdit.experience),
-        location: resumeToEdit.location,
-        workFormat: resumeToEdit.workFormat,
-      });
-      setSelectedResumeId(resumeId);
-      setResumeError(null);
-    }
-  };
+  const handleSelectResume = useCallback(
+    async (resumeId: string, resumeObject?: Resume) => {
+      const resumeToEdit =
+        resumeObject || userResumes.find((r) => r.id === resumeId);
+      if (resumeToEdit) {
+        setResumeForm({
+          title: resumeToEdit.title,
+          skills: Array.isArray(resumeToEdit.skills)
+            ? resumeToEdit.skills.join(", ")
+            : "",
+          experience: String(resumeToEdit.experience),
+          location: resumeToEdit.location,
+          workFormat: resumeToEdit.workFormat,
+        });
+        setSelectedResumeId(resumeId);
+        setResumeError(null);
+        await fetchVacancies(resumeToEdit);
+      }
+    },
+    [userResumes, fetchVacancies]
+  );
 
-  const handleCreateNewResume = () => {
+  const handleCreateNewResume = useCallback(async () => {
     setResumeForm(initialResumeFormState);
     setSelectedResumeId(null);
     setResumeError(null);
-  };
+    await fetchVacancies();
+  }, [fetchVacancies, initialResumeFormState]);
 
   const handleDeleteResume = async (resumeId: string) => {
     if (window.confirm("Are you sure you want to delete this resume?")) {
       setResumeError(null);
       try {
         await resumeService.deleteResume(resumeId);
-        fetchUserResumes();
-        if (selectedResumeId === resumeId) {
-          setResumeForm(initialResumeFormState);
-          setSelectedResumeId(null);
-        }
+        await fetchUserResumes();
       } catch (error: any) {
         setResumeError(error.message || "Failed to delete resume.");
         console.error("Failed to delete resume:", error);
@@ -229,22 +249,20 @@ const JobSearchPage: React.FC = () => {
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const lowerSearchTerm = searchTerm.toLowerCase();
-    // Ensure this URL and response structure matches your backend for search
-    const searchApiUrl = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${lowerSearchTerm}&filterType=all&take=1000&skip=0`; // Fetch all for client-side filtering or adjust if backend paginates search
+    const searchApiUrl = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${lowerSearchTerm}&filterType=all&take=1000&skip=0`;
     try {
       const result = await apiFetch<any>(searchApiUrl);
       if (result && result.summaries && Array.isArray(result.summaries)) {
         setFilteredVacancies(result.summaries);
       } else if (result && Array.isArray(result)) {
-        // If search returns an array directly
         setFilteredVacancies(result);
       } else {
         setFilteredVacancies([]);
       }
-      setCurrentPage(1); // Reset to first page after search
+      setCurrentPage(1);
     } catch (searchError) {
       console.error("Failed to fetch search results:", searchError);
-      setFilteredVacancies([]); // Clear vacancies on search error
+      setFilteredVacancies([]);
     }
   };
 
@@ -262,7 +280,6 @@ const JobSearchPage: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
       <aside className="w-1/4 bg-white p-6 shadow-lg flex flex-col">
         <div className="mb-8">
           <Link
@@ -449,9 +466,7 @@ const JobSearchPage: React.FC = () => {
         </form>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 p-6">
-        {/* Search Bar */}
         <div className="mb-6">
           <form
             onSubmit={handleSearchSubmit}
@@ -473,19 +488,34 @@ const JobSearchPage: React.FC = () => {
           </form>
         </div>
 
-        {/* Vacancy Cards */}
-        {(currentVacancies?.length || 0) > 0 ? (
+        {isLoadingVacancies && (
+          <p className="text-center text-indigo-600 py-8 text-2xl font-bold animate-pulse">
+            ИИ ПОДБИРАЕТ ДЛЯ ВАС ИДЕАЛЬНЫЕ ВАКАНСИИ
+          </p>
+        )}
+        {vacancyError && (
+          <p className="text-center text-red-500 py-4">
+            Error loading vacancies: {vacancyError}
+          </p>
+        )}
+        {!isLoadingVacancies &&
+        !vacancyError &&
+        (currentVacancies?.length || 0) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
             {currentVacancies?.map((vacancy) => (
               <VacancyCard key={vacancy.id} vacancy={vacancy} />
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-500">Вакансии не найдены.</p>
+          !isLoadingVacancies &&
+          !vacancyError && (
+            <p className="text-center text-gray-500 py-4">
+              Вакансии не найдены.
+            </p>
+          )
         )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
+        {!isLoadingVacancies && totalPages > 1 && (
           <div className="mt-8 flex justify-center">
             <nav
               className="inline-flex rounded-md shadow-sm -space-x-px"
