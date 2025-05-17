@@ -49,7 +49,7 @@ const JobSearchPage: React.FC = () => {
   const [isLoadingResumes, setIsLoadingResumes] = useState(
     localStorageResumes ? false : true
   );
-  
+
   const [resumeError, setResumeError] = useState<string | null>(null);
 
   const [filteredVacancies, setFilteredVacancies] = useState<Vacancy[]>([]);
