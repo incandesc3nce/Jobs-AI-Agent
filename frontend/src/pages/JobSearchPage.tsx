@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // Added Link import
-import { Briefcase } from "lucide-react"; // Added Briefcase icon import
+import { Link, useNavigate } from "react-router-dom";
+import { Briefcase, Edit3, PlusCircle, Trash2 } from "lucide-react";
 import VacancyCard from "../components/VacancyCard";
+import { resumeService, Resume } from "../services/resumeService";
 
-interface ResumeFormState {
+export interface ResumeFormState {
   title: string;
   skills: string;
   experience: string;
@@ -42,29 +43,100 @@ const mockVacancies: Vacancy[] = Array.from({ length: 25 }, (_, i) => ({
 }));
 
 const JobSearchPage: React.FC = () => {
-  const [resumeForm, setResumeForm] = useState<ResumeFormState>({
+  const initialResumeFormState: ResumeFormState = {
     title: "",
     skills: "",
     experience: "",
     location: "",
     workFormat: "",
-  });
+  };
+  const [resumeForm, setResumeForm] = useState<ResumeFormState>(
+    initialResumeFormState
+  );
+  const [userResumes, setUserResumes] = useState<Resume[]>([]);
+  const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
+  const [isLoadingResumes, setIsLoadingResumes] = useState(true);
+  const [resumeError, setResumeError] = useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredVacancies, setFilteredVacancies] =
     useState<Vacancy[]>(mockVacancies);
   const [currentPage, setCurrentPage] = useState(1);
   const [jwtToken, setJwtToken] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const vacanciesPerPage = 10;
 
   useEffect(() => {
-    const token = localStorage.getItem("jwtToken");
+    const token = localStorage.getItem("token");
     if (token) {
       setJwtToken(token);
+    } else {
+      console.log("No token found on mount, redirecting to login.");
+      navigate("/login");
     }
-    // In a real app, you might want to redirect to login if no token is found
-    // or if the token is invalid.
-  }, []);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (jwtToken) {
+      fetchUserResumes();
+    }
+  }, [jwtToken]);
+
+  const fetchUserResumes = async () => {
+    setIsLoadingResumes(true);
+    setResumeError(null);
+    try {
+      const resumes = await resumeService.getUserResumes();
+      setUserResumes(resumes);
+
+      if (resumes.length > 0) {
+        const currentSelectedResumeExists = selectedResumeId
+          ? resumes.some((r) => r.id === selectedResumeId)
+          : false;
+
+        if (currentSelectedResumeExists) {
+          const resumeToReSelect = resumes.find(
+            (r) => r.id === selectedResumeId
+          );
+          if (resumeToReSelect) {
+            handleSelectResume(resumeToReSelect.id);
+          } else {
+            handleSelectResume(resumes[0].id);
+          }
+        } else {
+          handleSelectResume(resumes[0].id);
+        }
+      } else {
+        setResumeForm(initialResumeFormState);
+        setSelectedResumeId(null);
+      }
+    } catch (error: any) {
+      console.error("Failed to load resumes:", error);
+      const errorMessage = String(error.message || "").toLowerCase();
+      if (
+        errorMessage.includes("unauthorized") ||
+        errorMessage.includes("token") ||
+        errorMessage.includes("forbidden")
+      ) {
+        setResumeError("Authentication failed. Please log in again.");
+        setTimeout(() => navigate("/login"), 1500);
+      } else if (
+        errorMessage.includes("not found") &&
+        userResumes.length === 0
+      ) {
+        setUserResumes([]);
+        setResumeForm(initialResumeFormState);
+        setSelectedResumeId(null);
+      } else {
+        setResumeError(
+          error.message || "Failed to load resumes. Please try again."
+        );
+      }
+    } finally {
+      setIsLoadingResumes(false);
+    }
+  };
 
   const handleResumeInputChange = (
     e: React.ChangeEvent<
@@ -75,10 +147,75 @@ const JobSearchPage: React.FC = () => {
     setResumeForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleResumeSubmit = (e: React.FormEvent) => {
+  const handleResumeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Resume submitted:", resumeForm);
-    // Here you would typically send the resume data to the backend
+    setResumeError(null);
+    if (
+      !resumeForm.title ||
+      !resumeForm.skills ||
+      !resumeForm.experience ||
+      !resumeForm.location ||
+      !resumeForm.workFormat
+    ) {
+      setResumeError("All fields are required.");
+      return;
+    }
+
+    try {
+      const payload: ResumeFormState = {
+        ...resumeForm,
+      };
+
+      if (selectedResumeId) {
+        await resumeService.updateResume(selectedResumeId, payload);
+      } else {
+        await resumeService.createResume(payload);
+      }
+      await fetchUserResumes();
+    } catch (error: any) {
+      setResumeError(error.message || "Failed to save resume.");
+      console.error("Failed to save resume:", error);
+    }
+  };
+
+  const handleSelectResume = (resumeId: string) => {
+    const resumeToEdit = userResumes.find((r) => r.id === resumeId);
+    if (resumeToEdit) {
+      setResumeForm({
+        title: resumeToEdit.title,
+        skills: Array.isArray(resumeToEdit.skills)
+          ? resumeToEdit.skills.join(", ")
+          : "",
+        experience: String(resumeToEdit.experience),
+        location: resumeToEdit.location,
+        workFormat: resumeToEdit.workFormat,
+      });
+      setSelectedResumeId(resumeId);
+      setResumeError(null);
+    }
+  };
+
+  const handleCreateNewResume = () => {
+    setResumeForm(initialResumeFormState);
+    setSelectedResumeId(null);
+    setResumeError(null);
+  };
+
+  const handleDeleteResume = async (resumeId: string) => {
+    if (window.confirm("Are you sure you want to delete this resume?")) {
+      setResumeError(null);
+      try {
+        await resumeService.deleteResume(resumeId);
+        fetchUserResumes();
+        if (selectedResumeId === resumeId) {
+          setResumeForm(initialResumeFormState);
+          setSelectedResumeId(null);
+        }
+      } catch (error: any) {
+        setResumeError(error.message || "Failed to delete resume.");
+        console.error("Failed to delete resume:", error);
+      }
+    }
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,10 +234,9 @@ const JobSearchPage: React.FC = () => {
         )
     );
     setFilteredVacancies(results);
-    setCurrentPage(1); // Reset to first page after search
+    setCurrentPage(1);
   };
 
-  // Pagination logic
   const indexOfLastVacancy = currentPage * vacanciesPerPage;
   const indexOfFirstVacancy = indexOfLastVacancy - vacanciesPerPage;
   const currentVacancies = filteredVacancies.slice(
@@ -124,8 +260,79 @@ const JobSearchPage: React.FC = () => {
             <span>CareerAI</span>
           </Link>
         </div>
-        <h2 className="text-2xl font-semibold mb-6 text-gray-800">My Resume</h2>
-        <form onSubmit={handleResumeSubmit} className="space-y-4">
+
+        {isLoadingResumes && (
+          <p className="text-center text-gray-500">Loading resumes...</p>
+        )}
+
+        {!isLoadingResumes && userResumes.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold mb-2 text-gray-700">
+              Your Resumes:
+            </h3>
+            <ul className="space-y-1 max-h-48 overflow-y-auto border rounded-md p-2">
+              {userResumes.map((resume) => (
+                <li
+                  key={resume.id}
+                  className={`p-2 rounded-md cursor-pointer flex justify-between items-center text-sm ${
+                    selectedResumeId === resume.id
+                      ? "bg-indigo-100 text-indigo-700 font-semibold"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  <span
+                    onClick={() => handleSelectResume(resume.id)}
+                    className="flex-grow truncate"
+                    title={resume.title}
+                  >
+                    {resume.title}
+                  </span>
+                  <div className="flex-shrink-0 ml-2">
+                    <button
+                      onClick={() => handleSelectResume(resume.id)}
+                      className="p-1 text-blue-500 hover:text-blue-700 focus:outline-none"
+                      title="Edit"
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteResume(resume.id)}
+                      className="p-1 text-red-500 hover:text-red-700 focus:outline-none"
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {!isLoadingResumes && userResumes.length === 0 && !resumeError && (
+          <p className="text-center text-gray-500 mb-4">
+            No resumes found. Create one below!
+          </p>
+        )}
+
+        <button
+          onClick={handleCreateNewResume}
+          className="mb-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          <PlusCircle size={18} className="mr-2" /> Create New Resume
+        </button>
+
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">
+          {selectedResumeId ? "Edit Resume" : "Create Resume"}
+        </h2>
+        {resumeError && (
+          <p className="text-red-500 text-sm mb-3 bg-red-50 p-2 rounded-md">
+            Error: {resumeError}
+          </p>
+        )}
+        <form
+          onSubmit={handleResumeSubmit}
+          className="space-y-4 flex-grow flex flex-col"
+        >
           <div>
             <label
               htmlFor="title"
@@ -221,16 +428,12 @@ const JobSearchPage: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            disabled={isLoadingResumes}
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-auto disabled:opacity-50"
           >
-            Сохранить
+            {selectedResumeId ? "Update Resume" : "Save Resume"}
           </button>
         </form>
-        {jwtToken && (
-          <p className="mt-4 text-xs text-gray-500">
-            Token: {jwtToken.substring(0, 20)}...
-          </p>
-        )}
       </aside>
 
       {/* Main Content */}
