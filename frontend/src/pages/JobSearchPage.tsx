@@ -248,7 +248,10 @@ const JobSearchPage: React.FC = () => {
 
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoadingVacancies(true); // Set loading true for search
+    setVacancyError(null); // Clear previous errors
     const lowerSearchTerm = searchTerm.toLowerCase();
+    // todo: заменить на /api/matches/get
     const searchApiUrl = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${lowerSearchTerm}&filterType=all&take=1000&skip=0`;
     try {
       const result = await apiFetch<any>(searchApiUrl);
@@ -260,9 +263,12 @@ const JobSearchPage: React.FC = () => {
         setFilteredVacancies([]);
       }
       setCurrentPage(1);
-    } catch (searchError) {
+    } catch (searchError: any) {
       console.error("Failed to fetch search results:", searchError);
+      setVacancyError(searchError.message || "Failed to perform search.");
       setFilteredVacancies([]);
+    } finally {
+      setIsLoadingVacancies(false); // Set loading false after search attempt
     }
   };
 
