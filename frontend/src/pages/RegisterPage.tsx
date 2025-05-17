@@ -1,18 +1,25 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { authService } from "../services/authService";
-import type { AuthResponse } from "../types/auth";
-import { Briefcase, UserPlus } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
+import type { AuthResponse } from '../types/auth';
+import { Briefcase, UserPlus } from 'lucide-react';
 
 const RegisterPage: React.FC = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string[] }>(
     {}
   );
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const jwtToken = localStorage.getItem('token');
+    if (jwtToken) {
+      navigate('/job-search'); // Redirect to job search page if already logged in
+    }
+  }, [navigate]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -20,10 +27,10 @@ const RegisterPage: React.FC = () => {
     setFieldErrors({});
 
     if (password !== confirmPassword) {
-      setError("Пароли не совпадают.");
+      setError('Пароли не совпадают.');
       setFieldErrors((prev) => ({
         ...prev,
-        confirmPassword: ["Пароли не совпадают."],
+        confirmPassword: ['Пароли не совпадают.'],
       }));
       return;
     }
@@ -36,11 +43,11 @@ const RegisterPage: React.FC = () => {
       });
 
       if (data.success && data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("username", data.username || username);
-        navigate("/job-search"); 
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username || username);
+        navigate('/job-search');
       } else {
-        let generalMessage = data.message || "Ошибка регистрации.";
+        let generalMessage = data.message || 'Ошибка регистрации.';
         if (data.errors) {
           const backendErrors = data.errors;
           const newFieldErrors: { [key: string]: string[] } = {};
@@ -51,19 +58,19 @@ const RegisterPage: React.FC = () => {
           if (backendErrors.passwordAreEqual === false) {
             newFieldErrors.confirmPassword = (
               newFieldErrors.confirmPassword || []
-            ).concat("Пароли должны совпадать (проверка на сервере).");
+            ).concat('Пароли должны совпадать (проверка на сервере).');
           }
           setFieldErrors(newFieldErrors);
 
           const messages = Object.values(newFieldErrors).flat();
           if (messages.length > 0) {
-            generalMessage = messages.join(" "); // Use combined field errors as general message
+            generalMessage = messages.join(' '); // Use combined field errors as general message
           }
         }
         setError(generalMessage);
       }
     } catch (err: any) {
-      let errorMessage = "Произошла ошибка во время регистрации.";
+      let errorMessage = 'Произошла ошибка во время регистрации.';
       if (err.response && err.response.data) {
         const errorData = err.response.data;
         errorMessage = errorData.message || errorMessage;
@@ -77,11 +84,11 @@ const RegisterPage: React.FC = () => {
           if (backendErrors.passwordAreEqual === false) {
             newFieldErrors.confirmPassword = (
               newFieldErrors.confirmPassword || []
-            ).concat("Пароли должны совпадать (проверка на сервере).");
+            ).concat('Пароли должны совпадать (проверка на сервере).');
           }
           setFieldErrors(newFieldErrors);
           const messages = Object.values(newFieldErrors).flat();
-          if (messages.length > 0) errorMessage = messages.join(" ");
+          if (messages.length > 0) errorMessage = messages.join(' ');
         }
       } else if (err.message) {
         errorMessage = err.message;
@@ -95,8 +102,7 @@ const RegisterPage: React.FC = () => {
       <div className="flex flex-col items-center">
         <Link
           to="/"
-          className="flex items-center mb-6 text-2xl font-semibold text-gray-900"
-        >
+          className="flex items-center mb-6 text-2xl font-semibold text-gray-900">
           <Briefcase className="w-8 h-8 mr-2 text-blue-600" />
           <span className="text-gray-900">CareerAI</span>
         </Link>
@@ -108,8 +114,7 @@ const RegisterPage: React.FC = () => {
         <div>
           <label
             htmlFor="username"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
+            className="block mb-2 text-sm font-medium text-gray-900">
             Имя пользователя
           </label>
           <input
@@ -119,21 +124,20 @@ const RegisterPage: React.FC = () => {
             onChange={(e) => setUsername(e.target.value)}
             required
             className={`bg-gray-50 border ${
-              fieldErrors.username ? "border-red-500" : "border-gray-300"
+              fieldErrors.username ? 'border-red-500' : 'border-gray-300'
             } text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5`}
             placeholder="your_username"
           />
           {fieldErrors.username && (
             <p className="mt-1 text-xs text-red-600">
-              {fieldErrors.username.join(", ")}
+              {fieldErrors.username.join(', ')}
             </p>
           )}
         </div>
         <div>
           <label
             htmlFor="password"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
+            className="block mb-2 text-sm font-medium text-gray-900">
             Пароль
           </label>
           <input
@@ -143,21 +147,20 @@ const RegisterPage: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
             className={`bg-gray-50 border ${
-              fieldErrors.password ? "border-red-500" : "border-gray-300"
+              fieldErrors.password ? 'border-red-500' : 'border-gray-300'
             } text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5`}
             placeholder="••••••••"
           />
           {fieldErrors.password && (
             <p className="mt-1 text-xs text-red-600">
-              {fieldErrors.password.join(", ")}
+              {fieldErrors.password.join(', ')}
             </p>
           )}
         </div>
         <div>
           <label
             htmlFor="confirmPassword"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
+            className="block mb-2 text-sm font-medium text-gray-900">
             Подтвердите пароль
           </label>
           <input
@@ -167,13 +170,13 @@ const RegisterPage: React.FC = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             className={`bg-gray-50 border ${
-              fieldErrors.confirmPassword ? "border-red-500" : "border-gray-300"
+              fieldErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
             } text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5`}
             placeholder="••••••••"
           />
           {fieldErrors.confirmPassword && (
             <p className="mt-1 text-xs text-red-600">
-              {fieldErrors.confirmPassword.join(", ")}
+              {fieldErrors.confirmPassword.join(', ')}
             </p>
           )}
         </div>
@@ -186,17 +189,15 @@ const RegisterPage: React.FC = () => {
 
         <button
           type="submit"
-          className="w-full flex justify-center items-center px-5 py-3 text-base font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300"
-        >
+          className="w-full flex justify-center items-center px-5 py-3 text-base font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">
           <UserPlus className="mr-2 h-5 w-5" />
           Зарегистрироваться
         </button>
         <p className="text-sm font-light text-gray-500 text-center">
-          Уже есть аккаунт?{" "}
+          Уже есть аккаунт?{' '}
           <Link
             to="/login"
-            className="font-medium text-blue-600 hover:underline"
-          >
+            className="font-medium text-blue-600 hover:underline">
             Войти здесь
           </Link>
         </p>

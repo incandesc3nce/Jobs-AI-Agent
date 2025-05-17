@@ -1,13 +1,20 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { authService } from "../services/authService";
-import { Briefcase, LogIn } from "lucide-react"; // Added LogIn icon
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
+import { Briefcase, LogIn } from 'lucide-react'; // Added LogIn icon
 
 const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const jwtToken = localStorage.getItem('token');
+    if (jwtToken) {
+      navigate('/job-search'); // Redirect to job search page if already logged in
+    }
+  }, [navigate]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -15,20 +22,20 @@ const LoginPage: React.FC = () => {
     try {
       const data = await authService.login({ username, password });
       if (data.success && data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("username", data.username || username);
-        navigate("/job-search"); // Navigate to a protected route, e.g., user profile or dashboard
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username || username);
+        navigate('/job-search'); // Navigate to a protected route, e.g., user profile or dashboard
       } else {
         setError(
-          data.message || "Ошибка входа. Пожалуйста, проверьте ваши данные."
+          data.message || 'Ошибка входа. Пожалуйста, проверьте ваши данные.'
         );
         if (data.errors) {
-          const errorMessages = Object.values(data.errors).flat().join(" ");
+          const errorMessages = Object.values(data.errors).flat().join(' ');
           setError((prevError) => `${prevError} ${errorMessages}`);
         }
       }
     } catch (err: any) {
-      setError(err.message || "Произошла ошибка во время входа.");
+      setError(err.message || 'Произошла ошибка во время входа.');
     }
   };
 
@@ -37,8 +44,7 @@ const LoginPage: React.FC = () => {
       <div className="flex flex-col items-center">
         <Link
           to="/"
-          className="flex items-center mb-6 text-2xl font-semibold text-gray-900"
-        >
+          className="flex items-center mb-6 text-2xl font-semibold text-gray-900">
           <Briefcase className="w-8 h-8 mr-2 text-blue-600" />
           <span className="text-gray-900">CareerAI</span>
         </Link>
@@ -50,8 +56,7 @@ const LoginPage: React.FC = () => {
         <div>
           <label
             htmlFor="username"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
+            className="block mb-2 text-sm font-medium text-gray-900">
             Имя пользователя
           </label>
           <input
@@ -67,8 +72,7 @@ const LoginPage: React.FC = () => {
         <div>
           <label
             htmlFor="password"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
+            className="block mb-2 text-sm font-medium text-gray-900">
             Пароль
           </label>
           <input
@@ -90,17 +94,15 @@ const LoginPage: React.FC = () => {
 
         <button
           type="submit"
-          className="w-full flex justify-center items-center px-5 py-3 text-base font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300"
-        >
+          className="w-full flex justify-center items-center px-5 py-3 text-base font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">
           <LogIn className="mr-2 h-5 w-5" />
           Войти
         </button>
         <p className="text-sm font-light text-gray-500 text-center">
-          Нет аккаунта?{" "}
+          Нет аккаунта?{' '}
           <Link
             to="/register"
-            className="font-medium text-blue-600 hover:underline"
-          >
+            className="font-medium text-blue-600 hover:underline">
             Зарегистрироваться
           </Link>
         </p>
