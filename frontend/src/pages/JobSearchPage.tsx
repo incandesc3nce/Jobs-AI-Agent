@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Briefcase, Edit3, PlusCircle, Trash2 } from "lucide-react";
-import VacancyCard from "../components/VacancyCard";
-import { resumeService, Resume } from "../services/resumeService";
-import { apiFetch } from "../utils/apiFetch";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Briefcase, Edit3, PlusCircle, Trash2 } from 'lucide-react';
+import VacancyCard from '../components/VacancyCard';
+import { resumeService, Resume } from '../services/resumeService';
+import { apiFetch } from '../utils/apiFetch';
 
 export interface ResumeFormState {
   title: string;
   skills: string;
   experience: string;
   location: string;
-  workFormat: "Remote" | "Hybrid" | "Onsite" | "";
+  workFormat: 'Remote' | 'Hybrid' | 'Onsite' | '';
 }
 
 interface Vacancy {
@@ -21,7 +21,7 @@ interface Vacancy {
   location: string;
   salary: string;
   workSchedule: string;
-  workFormat: "Remote" | "Hybrid" | "Onsite";
+  workFormat: 'Remote' | 'Hybrid' | 'Onsite';
   isInternship: boolean;
   hasTestTask: boolean;
   description: string;
@@ -30,25 +30,33 @@ interface Vacancy {
 
 const JobSearchPage: React.FC = () => {
   const initialResumeFormState: ResumeFormState = {
-    title: "",
-    skills: "",
-    experience: "",
-    location: "",
-    workFormat: "",
+    title: '',
+    skills: '',
+    experience: '',
+    location: '',
+    workFormat: '',
   };
+
+  const localStorageResumes = localStorage.getItem('resumes');
+
   const [resumeForm, setResumeForm] = useState<ResumeFormState>(
     initialResumeFormState
   );
-  const [userResumes, setUserResumes] = useState<Resume[]>([]);
+  const [userResumes, setUserResumes] = useState<Resume[]>(
+    localStorageResumes ? JSON.parse(localStorage.getItem('resumes')!) : []
+  );
   const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
-  const [isLoadingResumes, setIsLoadingResumes] = useState(true);
+  const [isLoadingResumes, setIsLoadingResumes] = useState(
+    localStorageResumes ? false : true
+  );
+  
   const [resumeError, setResumeError] = useState<string | null>(null);
 
   const [filteredVacancies, setFilteredVacancies] = useState<Vacancy[]>([]);
   const [isLoadingVacancies, setIsLoadingVacancies] = useState(true);
   const [vacancyError, setVacancyError] = useState<string | null>(null);
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [jwtToken, setJwtToken] = useState<string | null>(null);
   const [isHeaderSticky, setIsHeaderSticky] = useState(false);
@@ -60,12 +68,12 @@ const JobSearchPage: React.FC = () => {
   const vacanciesPerPage = 10;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       setJwtToken(token);
     } else {
-      console.log("No token found on mount, redirecting to login.");
-      navigate("/login");
+      console.log('No token found on mount, redirecting to login.');
+      navigate('/login');
     }
   }, [navigate]);
 
@@ -85,10 +93,10 @@ const JobSearchPage: React.FC = () => {
         }
       }
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -102,23 +110,23 @@ const JobSearchPage: React.FC = () => {
     setIsLoadingVacancies(true);
     setVacancyError(null);
     let url =
-      "https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filterType=all&take=1000&skip=0";
+      'https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filterType=all&take=1000&skip=0';
 
     if (resume) {
       const skillsString = Array.isArray(resume.skills)
-        ? resume.skills.join(",")
-        : "";
-      let combinedFilter = "";
+        ? resume.skills.join(',')
+        : '';
+      let combinedFilter = '';
 
       if (resume.title) {
         combinedFilter += resume.title;
       }
       if (skillsString) {
-        if (combinedFilter && resume.title) combinedFilter += ",";
+        if (combinedFilter && resume.title) combinedFilter += ',';
         combinedFilter += skillsString;
       }
 
-      const filterValue = combinedFilter.replace(/\s+/g, "");
+      const filterValue = combinedFilter.replace(/\s+/g, '');
 
       if (filterValue) {
         url = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${encodeURIComponent(
@@ -138,8 +146,8 @@ const JobSearchPage: React.FC = () => {
       }
       setCurrentPage(1);
     } catch (err: any) {
-      console.error("Failed to fetch vacancies:", err);
-      setVacancyError(err.message || "Failed to load vacancies.");
+      console.error('Failed to fetch vacancies:', err);
+      setVacancyError(err.message || 'Failed to load vacancies.');
       setFilteredVacancies([]);
     } finally {
       setIsLoadingVacancies(false);
@@ -147,10 +155,29 @@ const JobSearchPage: React.FC = () => {
   }, []);
 
   const fetchUserResumes = useCallback(async () => {
-    setIsLoadingResumes(true);
     setResumeError(null);
+    const resumes = localStorage.getItem('resumes');
+
+    if (resumes) {
+      const parsedResumes = JSON.parse(resumes);
+      setUserResumes(parsedResumes);
+      if (parsedResumes.length > 0) {
+        const resumeToSelect = parsedResumes[parsedResumes.length - 1];
+        await handleSelectResume(resumeToSelect.id, resumeToSelect);
+      } else {
+        setResumeForm(initialResumeFormState);
+        setSelectedResumeId(null);
+        await fetchVacancies();
+      }
+      return;
+    }
+
+    // If no resumes in localStorage, fetch from API
+    setIsLoadingResumes(true);
+
     try {
       const resumes = await resumeService.getUserResumes();
+      localStorage.setItem('resumes', JSON.stringify(resumes));
       setUserResumes(resumes);
 
       if (resumes.length > 0) {
@@ -162,23 +189,23 @@ const JobSearchPage: React.FC = () => {
         await fetchVacancies();
       }
     } catch (error: any) {
-      console.error("Failed to load resumes:", error);
-      const errorMessage = String(error.message || "").toLowerCase();
+      console.error('Failed to load resumes:', error);
+      const errorMessage = String(error.message || '').toLowerCase();
       if (
-        errorMessage.includes("unauthorized") ||
-        errorMessage.includes("token") ||
-        errorMessage.includes("forbidden")
+        errorMessage.includes('unauthorized') ||
+        errorMessage.includes('token') ||
+        errorMessage.includes('forbidden')
       ) {
-        setResumeError("Authentication failed. Please log in again.");
-        setTimeout(() => navigate("/login"), 1500);
-      } else if (errorMessage.includes("not found")) {
+        setResumeError('Authentication failed. Please log in again.');
+        setTimeout(() => navigate('/login'), 1500);
+      } else if (errorMessage.includes('not found')) {
         setUserResumes([]);
         setResumeForm(initialResumeFormState);
         setSelectedResumeId(null);
         await fetchVacancies();
       } else {
         setResumeError(
-          error.message || "Failed to load resumes. Please try again."
+          error.message || 'Failed to load resumes. Please try again.'
         );
         await fetchVacancies();
       }
@@ -206,7 +233,7 @@ const JobSearchPage: React.FC = () => {
       !resumeForm.location ||
       !resumeForm.workFormat
     ) {
-      setResumeError("All fields are required.");
+      setResumeError('All fields are required.');
       return;
     }
 
@@ -217,13 +244,15 @@ const JobSearchPage: React.FC = () => {
 
       if (selectedResumeId) {
         await resumeService.updateResume(selectedResumeId, payload);
+        localStorage.removeItem('resumes');
       } else {
         await resumeService.createResume(payload);
+        localStorage.removeItem('resumes');
       }
       await fetchUserResumes();
     } catch (error: any) {
-      setResumeError(error.message || "Failed to save resume.");
-      console.error("Failed to save resume:", error);
+      setResumeError(error.message || 'Failed to save resume.');
+      console.error('Failed to save resume:', error);
     }
   };
 
@@ -235,8 +264,8 @@ const JobSearchPage: React.FC = () => {
         setResumeForm({
           title: resumeToEdit.title,
           skills: Array.isArray(resumeToEdit.skills)
-            ? resumeToEdit.skills.join(", ")
-            : "",
+            ? resumeToEdit.skills.join(', ')
+            : '',
           experience: String(resumeToEdit.experience),
           location: resumeToEdit.location,
           workFormat: resumeToEdit.workFormat,
@@ -257,14 +286,15 @@ const JobSearchPage: React.FC = () => {
   }, [fetchVacancies, initialResumeFormState]);
 
   const handleDeleteResume = async (resumeId: string) => {
-    if (window.confirm("Are you sure you want to delete this resume?")) {
+    if (window.confirm('Are you sure you want to delete this resume?')) {
       setResumeError(null);
       try {
         await resumeService.deleteResume(resumeId);
+        localStorage.removeItem('resumes');
         await fetchUserResumes();
       } catch (error: any) {
-        setResumeError(error.message || "Failed to delete resume.");
-        console.error("Failed to delete resume:", error);
+        setResumeError(error.message || 'Failed to delete resume.');
+        console.error('Failed to delete resume:', error);
       }
     }
   };
@@ -291,8 +321,8 @@ const JobSearchPage: React.FC = () => {
       }
       setCurrentPage(1);
     } catch (searchError: any) {
-      console.error("Failed to fetch search results:", searchError);
-      setVacancyError(searchError.message || "Failed to perform search.");
+      console.error('Failed to fetch search results:', searchError);
+      setVacancyError(searchError.message || 'Failed to perform search.');
       setFilteredVacancies([]);
     } finally {
       setIsLoadingVacancies(false);
@@ -322,16 +352,14 @@ const JobSearchPage: React.FC = () => {
           transition-all duration-300 ease-in-out
           ${
             isHeaderSticky
-              ? "bg-white shadow-md py-2 opacity-100 visible"
-              : "bg-transparent py-4 opacity-0 invisible"
+              ? 'bg-white shadow-md py-2 opacity-100 visible'
+              : 'bg-transparent py-4 opacity-0 invisible'
           }
-        `}
-      >
+        `}>
         <div className="w-1/4 flex justify-center items-center">
           <Link
             to="/"
-            className="flex items-center text-xl font-semibold text-gray-900"
-          >
+            className="flex items-center text-xl font-semibold text-gray-900">
             <Briefcase className="w-7 h-7 mr-2 text-indigo-600" />
             <span>CareerAI</span>
           </Link>
@@ -339,8 +367,7 @@ const JobSearchPage: React.FC = () => {
         <div className="flex-1 flex justify-center items-center">
           <form
             onSubmit={handleSearchSubmit}
-            className="flex items-center justify-center max-w-xl w-full"
-          >
+            className="flex items-center justify-center max-w-xl w-full">
             <input
               type="text"
               placeholder="Поиск вакансий..."
@@ -350,8 +377,7 @@ const JobSearchPage: React.FC = () => {
             />
             <button
               type="submit"
-              className="bg-indigo-600 text-white px-6 py-2 rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-            >
+              className="bg-indigo-600 text-white px-6 py-2 rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm">
               Поиск
             </button>
           </form>
@@ -366,13 +392,11 @@ const JobSearchPage: React.FC = () => {
         <aside className="w-1/4 bg-white p-6 shadow-lg flex flex-col">
           <div
             className={`mb-8 flex justify-center items-center ${
-              isHeaderSticky ? "invisible" : "visible"
-            }`}
-          >
+              isHeaderSticky ? 'invisible' : 'visible'
+            }`}>
             <Link
               to="/"
-              className="flex items-center text-xl font-semibold text-gray-900"
-            >
+              className="flex items-center text-xl font-semibold text-gray-900">
               <Briefcase className="w-7 h-7 mr-2 text-indigo-600" />
               <span>CareerAI</span>
             </Link>
@@ -393,30 +417,26 @@ const JobSearchPage: React.FC = () => {
                     key={resume.id}
                     className={`p-2 rounded-md cursor-pointer flex justify-between items-center text-sm ${
                       selectedResumeId === resume.id
-                        ? "bg-indigo-100 text-indigo-700 font-semibold"
-                        : "hover:bg-gray-50"
-                    }`}
-                  >
+                        ? 'bg-indigo-100 text-indigo-700 font-semibold'
+                        : 'hover:bg-gray-50'
+                    }`}>
                     <span
                       onClick={() => handleSelectResume(resume.id)}
                       className="flex-grow truncate"
-                      title={resume.title}
-                    >
+                      title={resume.title}>
                       {resume.title}
                     </span>
                     <div className="flex-shrink-0 ml-2">
                       <button
                         onClick={() => handleSelectResume(resume.id)}
                         className="p-1 text-blue-500 hover:text-blue-700 focus:outline-none"
-                        title="Edit"
-                      >
+                        title="Edit">
                         <Edit3 size={16} />
                       </button>
                       <button
                         onClick={() => handleDeleteResume(resume.id)}
                         className="p-1 text-red-500 hover:text-red-700 focus:outline-none"
-                        title="Delete"
-                      >
+                        title="Delete">
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -433,13 +453,12 @@ const JobSearchPage: React.FC = () => {
 
           <button
             onClick={handleCreateNewResume}
-            className="mb-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
+            className="mb-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
             <PlusCircle size={18} className="mr-2" /> Create New Resume
           </button>
 
           <h2 className="text-xl font-semibold mb-4 text-gray-800">
-            {selectedResumeId ? "Edit Resume" : "Create Resume"}
+            {selectedResumeId ? 'Edit Resume' : 'Create Resume'}
           </h2>
           {resumeError && (
             <p className="text-red-500 text-sm mb-3 bg-red-50 p-2 rounded-md">
@@ -448,13 +467,11 @@ const JobSearchPage: React.FC = () => {
           )}
           <form
             onSubmit={handleResumeSubmit}
-            className="space-y-4 flex-grow flex flex-col"
-          >
+            className="space-y-4 flex-grow flex flex-col">
             <div>
               <label
                 htmlFor="title"
-                className="block text-sm font-medium text-gray-700"
-              >
+                className="block text-sm font-medium text-gray-700">
                 Должность
               </label>
               <input
@@ -471,8 +488,7 @@ const JobSearchPage: React.FC = () => {
             <div>
               <label
                 htmlFor="skills"
-                className="block text-sm font-medium text-gray-700"
-              >
+                className="block text-sm font-medium text-gray-700">
                 Скиллы
               </label>
               <input
@@ -489,8 +505,7 @@ const JobSearchPage: React.FC = () => {
             <div>
               <label
                 htmlFor="experience"
-                className="block text-sm font-medium text-gray-700"
-              >
+                className="block text-sm font-medium text-gray-700">
                 Опыт работы
               </label>
               <input
@@ -507,8 +522,7 @@ const JobSearchPage: React.FC = () => {
             <div>
               <label
                 htmlFor="location"
-                className="block text-sm font-medium text-gray-700"
-              >
+                className="block text-sm font-medium text-gray-700">
                 Местоположение
               </label>
               <input
@@ -525,8 +539,7 @@ const JobSearchPage: React.FC = () => {
             <div>
               <label
                 htmlFor="workFormat"
-                className="block text-sm font-medium text-gray-700"
-              >
+                className="block text-sm font-medium text-gray-700">
                 Формат работы
               </label>
               <select
@@ -535,8 +548,7 @@ const JobSearchPage: React.FC = () => {
                 value={resumeForm.workFormat}
                 onChange={handleResumeInputChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                required
-              >
+                required>
                 <option value="">Выберите формат</option>
                 <option value="Remote">Remote</option>
                 <option value="Hybrid">Hybrid</option>
@@ -546,9 +558,8 @@ const JobSearchPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoadingResumes}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-auto disabled:opacity-50"
-            >
-              {selectedResumeId ? "Update Resume" : "Save Resume"}
+              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-auto disabled:opacity-50">
+              {selectedResumeId ? 'Update Resume' : 'Save Resume'}
             </button>
           </form>
         </aside>
@@ -556,12 +567,10 @@ const JobSearchPage: React.FC = () => {
         <main className="flex-1 p-6">
           <div
             ref={scrollTriggerRef}
-            className={`mb-6 ${isHeaderSticky ? "invisible" : "visible"}`}
-          >
+            className={`mb-6 ${isHeaderSticky ? 'invisible' : 'visible'}`}>
             <form
               onSubmit={handleSearchSubmit}
-              className="flex items-center justify-center max-w-xl mx-auto"
-            >
+              className="flex items-center justify-center max-w-xl mx-auto">
               <input
                 type="text"
                 placeholder="Поиск вакансий..."
@@ -571,8 +580,7 @@ const JobSearchPage: React.FC = () => {
               />
               <button
                 type="submit"
-                className="bg-indigo-600 text-white px-6 py-2 rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
+                className="bg-indigo-600 text-white px-6 py-2 rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Поиск
               </button>
             </form>
@@ -609,13 +617,11 @@ const JobSearchPage: React.FC = () => {
             <div className="mt-8 flex justify-center">
               <nav
                 className="inline-flex rounded-md shadow-sm -space-x-px"
-                aria-label="Pagination"
-              >
+                aria-label="Pagination">
                 {currentPage > 1 && (
                   <button
                     onClick={() => paginate(currentPage - 1)}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  >
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                     Previous
                   </button>
                 )}
@@ -627,10 +633,9 @@ const JobSearchPage: React.FC = () => {
                       className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium
                     ${
                       currentPage === pageNumber
-                        ? "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
-                        : "bg-white text-gray-700 hover:bg-gray-50"
-                    }`}
-                    >
+                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                    }`}>
                       {pageNumber}
                     </button>
                   )
@@ -638,8 +643,7 @@ const JobSearchPage: React.FC = () => {
                 {currentPage < totalPages && (
                   <button
                     onClick={() => paginate(currentPage + 1)}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  >
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                     Next
                   </button>
                 )}
