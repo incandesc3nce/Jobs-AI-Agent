@@ -51,12 +51,15 @@ export const matchGetRoute = async (req: Request, res: Response) => {
       where: {
         resumeId: resumeId as string,
       },
+      include: {
+        summary: true,
+      },
     });
 
     res.status(200).json({
       message: 'Matches fetched successfully',
       success: true,
-      data: matches,
+      summaries: matches,
     });
   } catch (error) {
     console.error('Error fetching matches:', error);
