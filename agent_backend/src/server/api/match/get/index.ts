@@ -54,6 +54,9 @@ export const matchGetRoute = async (req: Request, res: Response) => {
       include: {
         summary: true,
       },
+      orderBy: {
+        matchScore: 'desc',
+      },
     });
 
     res.status(200).json({
