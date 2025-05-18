@@ -403,13 +403,13 @@ const JobSearchPage: React.FC = () => {
           </div>
 
           {isLoadingResumes && (
-            <p className="text-center text-gray-500">Loading resumes...</p>
+            <p className="text-center text-gray-500">Загружаем резюме...</p>
           )}
 
           {!isLoadingResumes && userResumes.length > 0 && (
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2 text-gray-700">
-                Your Resumes:
+                Ваши резюме:
               </h3>
               <ul className="space-y-1 max-h-48 overflow-y-auto border rounded-md p-2">
                 {userResumes.map((resume) => (
@@ -447,22 +447,22 @@ const JobSearchPage: React.FC = () => {
           )}
           {!isLoadingResumes && userResumes.length === 0 && !resumeError && (
             <p className="text-center text-gray-500 mb-4">
-              No resumes found. Create one below!
+              Резюме не найдено. Создай его ниже!
             </p>
           )}
 
           <button
             onClick={handleCreateNewResume}
             className="mb-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-            <PlusCircle size={18} className="mr-2" /> Create New Resume
+            <PlusCircle size={18} className="mr-2" /> Создать резюме
           </button>
 
           <h2 className="text-xl font-semibold mb-4 text-gray-800">
-            {selectedResumeId ? 'Edit Resume' : 'Create Resume'}
+            {selectedResumeId ? 'Редактировать резюме' : 'Создать резюме'}
           </h2>
           {resumeError && (
             <p className="text-red-500 text-sm mb-3 bg-red-50 p-2 rounded-md">
-              Error: {resumeError}
+              Ошибка: {resumeError}
             </p>
           )}
           <form
@@ -550,16 +550,16 @@ const JobSearchPage: React.FC = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required>
                 <option value="">Выберите формат</option>
-                <option value="Remote">Remote</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Onsite">Onsite</option>
+                <option value="Remote">Удаленно</option>
+                <option value="Hybrid">Гибрид</option>
+                <option value="Onsite">Офис</option>
               </select>
             </div>
             <button
               type="submit"
               disabled={isLoadingResumes}
               className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-auto disabled:opacity-50">
-              {selectedResumeId ? 'Update Resume' : 'Save Resume'}
+              {selectedResumeId ? 'Обновить резюме' : 'Сохранить резюме'}
             </button>
           </form>
         </aside>
@@ -593,7 +593,7 @@ const JobSearchPage: React.FC = () => {
           )}
           {vacancyError && (
             <p className="text-center text-red-500 py-4">
-              Error loading vacancies: {vacancyError}
+              Ошибка при подборе вакансий: {vacancyError}
             </p>
           )}
           {!isLoadingVacancies &&
@@ -622,7 +622,7 @@ const JobSearchPage: React.FC = () => {
                   <button
                     onClick={() => paginate(currentPage - 1)}
                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    Previous
+                    Предыдущая
                   </button>
                 )}
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -644,7 +644,7 @@ const JobSearchPage: React.FC = () => {
                   <button
                     onClick={() => paginate(currentPage + 1)}
                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    Next
+                    Следующая
                   </button>
                 )}
               </nav>
