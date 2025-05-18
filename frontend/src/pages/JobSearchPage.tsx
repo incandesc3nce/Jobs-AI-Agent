@@ -45,7 +45,9 @@ const JobSearchPage: React.FC = () => {
   const [userResumes, setUserResumes] = useState<Resume[]>(
     localStorageResumes ? JSON.parse(localStorage.getItem('resumes')!) : []
   );
-  const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
+  const [selectedResumeId, setSelectedResumeId] = useState<string | null>(
+    JSON.parse(localStorage.getItem('resumes') ?? '')[0]?.id ?? null
+  );
   const [isLoadingResumes, setIsLoadingResumes] = useState(
     localStorageResumes ? false : true
   );
@@ -109,8 +111,8 @@ const JobSearchPage: React.FC = () => {
   const fetchVacancies = useCallback(async (resume?: Resume) => {
     setIsLoadingVacancies(true);
     setVacancyError(null);
-    let url =
-      'https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filterType=all&take=1000&skip=0';
+
+    let url = `https://jobs-agent-backend-2.loca.lt/api/match/get?resumeId=${selectedResumeId}`;
 
     if (resume) {
       const skillsString = Array.isArray(resume.skills)
@@ -129,9 +131,7 @@ const JobSearchPage: React.FC = () => {
       const filterValue = combinedFilter.replace(/\s+/g, '');
 
       if (filterValue) {
-        url = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${encodeURIComponent(
-          filterValue
-        )}&filterType=all&take=1000&skip=0`;
+        url = `https://jobs-agent-backend-2.loca.lt/api/match/get?resumeId=${selectedResumeId}`;
       }
     }
 
@@ -309,7 +309,7 @@ const JobSearchPage: React.FC = () => {
     setVacancyError(null);
     const lowerSearchTerm = searchTerm.toLowerCase();
 
-    const searchApiUrl = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${lowerSearchTerm}&filterType=all&take=1000&skip=0`;
+    const searchApiUrl = `https://jobs-agent-backend-2.loca.lt/api/vacancies/get?filter=${lowerSearchTerm}&filterType=some&take=1000&skip=0`;
     try {
       const result = await apiFetch<any>(searchApiUrl);
       if (result && result.summaries && Array.isArray(result.summaries)) {
@@ -401,11 +401,9 @@ const JobSearchPage: React.FC = () => {
               <span>CareerAI</span>
             </Link>
           </div>
-
           {isLoadingResumes && (
             <p className="text-center text-gray-500">Загружаем резюме...</p>
           )}
-
           {!isLoadingResumes && userResumes.length > 0 && (
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2 text-gray-700">
@@ -450,13 +448,11 @@ const JobSearchPage: React.FC = () => {
               Резюме не найдено. Создай его ниже!
             </p>
           )}
-
           <button
             onClick={handleCreateNewResume}
             className="mb-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
             <PlusCircle size={18} className="mr-2" /> Создать резюме
           </button>
-
           <h2 className="text-xl font-semibold mb-4 text-gray-800">
             {selectedResumeId ? 'Редактировать резюме' : 'Создать резюме'}
           </h2>
@@ -601,7 +597,12 @@ const JobSearchPage: React.FC = () => {
           (currentVacancies?.length || 0) > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
               {currentVacancies?.map((vacancy) => (
-                <VacancyCard key={vacancy.id} vacancy={vacancy} />
+                <VacancyCard
+                  key={vacancy.id}
+                  vacancy={vacancy?.summary || vacancy}
+                  matchScore={vacancy?.matchScore}
+                  matchReason={vacancy?.matchReason}
+                />
               ))}
             </div>
           ) : (
