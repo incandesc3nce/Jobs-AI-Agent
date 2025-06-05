@@ -1,0 +1,4 @@
+{
+  "name": "jobs-ai-agent",
+  "workspaces": ["frontend", "agent_backend", "agent_backend/prisma/generated"]
+}
